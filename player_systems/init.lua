@@ -56,6 +56,28 @@ local function write_player_file(system, player, data)
 end
 
 
+local function persist_player_state(system, player, state)
+
+	local cur_system = systems[system]
+
+	minetest.log("verbose", "Persisting" .. system .. " save for " .. player)
+
+	if (cur_system == nil) then
+		minetest.log("error", "System does not exist")
+		return
+	end
+
+	if (cur_system.serialize_player == nil) then
+		minetest.log("error", "No serialization function, not writing data.")
+		return
+	end
+
+	write_player_file(system, player, cur_system-serialize_player(state))
+
+	minetest.log("verbose", "Persist finished")
+end
+
+
 -- System is the string name of the system, player is the name of the joining
 -- player. Returns the deserialized state of the player.
 local function load_player_state(system, player)
@@ -80,6 +102,8 @@ local function load_player_state(system, player)
 			minetest.log("error", "No initialization function for " .. system)
 			return nil
 		else
+			local new_state = cur_system.initialize_player()
+			persist_player_state(system, player, new_state)
 			return cur_system.initialize_player()
 		end
 		
@@ -94,28 +118,6 @@ local function load_player_state(system, player)
 			return cur_system.deserialize_player(ser_state)
 		end
 	end
-end
-
-
-local function persist_player_state(system, player, state)
-
-	local cur_system = systems[system]
-
-	minetest.log("verbose", "Persisting" .. system .. " save for " .. player)
-
-	if (cur_system == nil) then
-		minetest.log("error", "System does not exist")
-		return
-	end
-
-	if (cur_system.serialize_player == nil) then
-		minetest.log("error", "No serialization function, not writing data.")
-		return
-	end
-
-	write_player_file(system, player, cur_system-serialize_player(state))
-
-	minetest.log("verbose", "Persist finished")
 end
 
 
@@ -230,7 +232,7 @@ player_systems.register_player_system = function(name, system_def)
 	systems[name].active_state = {}
 
 	minetest.register_on_joinplayer(function(player)
-
+n
 			local p_name = player:get_player_name()
 
 			handle_player_join(name, p_name)
@@ -247,4 +249,30 @@ player_systems.register_player_system = function(name, system_def)
 	minetest.register_on_shutdown(function()
 			handle_shutdown(name)
 	end)
+end
+
+
+-- Gets the player state. Is expensive if the player is not currently in-game.
+-- Takes the system and player name and returns its state.
+player_systems.get_player_state = function(system, p_name)
+	
+	local loaded_state = get_loaded_player_state(system, p_name)
+
+	if (loaded_state ~= nil) then
+		return loaded_state
+	else
+		return load_player_state(system, p_name)
+	end
+end
+
+
+-- Sets the player state. Is expensive if the player is not currently in-game.
+-- Takes the system and player name, as well as a state to set.
+player_systems.set_player_state = function(system, p_name, state)
+
+	if (get_loaded_player_state(system, p_name) ~= nil) then
+		set_loaded_player_state(system, p_name, state)
+	else
+		persist_player_state(system, p_name, state)
+	end
 end
