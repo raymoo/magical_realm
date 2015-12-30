@@ -44,8 +44,14 @@ end
 
 local function read_player_file(system, player)
 	local the_file = io.open(make_save_path(system, player), "rb")
-	local contents = the_file:read("*a")
-	the_file:close()
+	local contents
+	if (the_file == nil) then
+		contents = nil
+	else
+		contents = the_file:read("*a")
+		the_file:close()
+	end
+	
 	return contents
 end
 
@@ -72,7 +78,7 @@ local function persist_player_state(system, player, state)
 		return
 	end
 
-	write_player_file(system, player, cur_system-serialize_player(state))
+	write_player_file(system, player, cur_system.serialize_player(state))
 
 	minetest.log("verbose", "Persist finished")
 end
@@ -115,7 +121,7 @@ local function load_player_state(system, player)
 			minetest.log("error", "No deserialization function for " .. system)
 			return nil
 		else
-			return cur_system.deserialize_player(ser_state)
+			return cur_system.deserialize_player(pfile)
 		end
 	end
 end
@@ -209,7 +215,7 @@ local function persist_actives(system)
 end
 		
 
-local function copy_shal(t)
+local function copy_shal(orig)
 
 	local orig_type = type(orig)
 	local copy
@@ -227,12 +233,14 @@ end
 
 player_systems.register_player_system = function(name, system_def)
 
+	minetest.debug(type(system_def))
+
 	systems[name] = copy_shal(system_def)
 
 	systems[name].active_state = {}
 
 	minetest.register_on_joinplayer(function(player)
-n
+
 			local p_name = player:get_player_name()
 
 			handle_player_join(name, p_name)
@@ -247,7 +255,7 @@ n
 	end)
 	
 	minetest.register_on_shutdown(function()
-			handle_shutdown(name)
+			persist_actives(name)
 	end)
 end
 
