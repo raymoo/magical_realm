@@ -41,9 +41,9 @@ end
 player_systems = {}
 
 
-local mod_path = minetest.get_modpath(minetest.get_current_modname())
+local world_path = minetest.get_worldpath()
 
-local mod_data_path = mod_path .. "/saves"
+local mod_data_path = world_path .. "/psystem-saves"
 
 
 os.execute("mkdir " .. mod_data_path)
@@ -76,6 +76,7 @@ end
 local function write_player_file(system, player, data)
 	local the_file = io.open(make_save_path(system, player), "wb")
 	the_file:write(data)
+	the_file:close()
 end
 
 
