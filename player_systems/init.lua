@@ -21,6 +21,23 @@
 --
 -- on_player_join and on_player_leave are optional.
 
+
+local function copy_shal(orig)
+
+	local orig_type = type(orig)
+	local copy
+	if orig_type == 'table' then
+		copy = {}
+		for orig_key, orig_value in pairs(orig) do
+			copy[orig_key] = orig_value
+		end
+	else -- number, string, boolean, etc
+		copy = orig
+	end
+	    return copy
+end
+
+
 player_systems = {}
 
 
@@ -131,7 +148,7 @@ local function get_loaded_player_state(system, player)
 
 	local cur_system = systems[system]
 	
-	return cur_system.active_state[player]
+	return copy_shal(cur_system.active_state[player])
 end
 
 
@@ -139,7 +156,7 @@ local function set_loaded_player_state(system, player, new_state)
 
 	local cur_system = systems[system]
 
-	cur_system.active_state[player] = new_state
+	cur_system.active_state[player] = copy_shal(new_state)
 end
 
 
@@ -215,22 +232,6 @@ local function persist_actives(system)
 end
 		
 
-local function copy_shal(orig)
-
-	local orig_type = type(orig)
-	local copy
-	if orig_type == 'table' then
-		copy = {}
-		for orig_key, orig_value in pairs(orig) do
-			copy[orig_key] = orig_value
-		end
-	else -- number, string, boolean, etc
-		copy = orig
-	end
-	    return copy
-end
-
-
 player_systems.register_player_system = function(name, system_def)
 
 	minetest.debug(type(system_def))
@@ -283,4 +284,14 @@ player_systems.set_state = function(system, p_name, state)
 	else
 		persist_player_state(system, p_name, state)
 	end
+end
+
+
+player_systems.persist = persist_actives
+
+
+-- Gets a table of active states. Changing the fields will change the state.
+player_systems.active_states = function(system)
+
+	return systems[system] and systems[system].active_state
 end
