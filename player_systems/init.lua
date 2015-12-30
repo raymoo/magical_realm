@@ -24,9 +24,9 @@
 player_systems = {}
 
 
-local mod_path = minetest.get_modpath(minetest.get_current_modname())
+local world_path = minetest.get_worldpath()
 
-local mod_data_path = mod_path .. "/saves"
+local mod_data_path = world_path .. "/psystem-saves"
 
 
 os.execute("mkdir " .. mod_data_path)
