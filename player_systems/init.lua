@@ -59,6 +59,7 @@ end
 local function write_player_file(system, player, data)
 	local the_file = io.open(make_save_path(system, player), "wb")
 	the_file:write(data)
+	the_file:close()
 end
 
 
