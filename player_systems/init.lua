@@ -262,7 +262,7 @@ end
 
 -- Gets the player state. Is expensive if the player is not currently in-game.
 -- Takes the system and player name and returns its state.
-player_systems.get_player_state = function(system, p_name)
+player_systems.get_state = function(system, p_name)
 	
 	local loaded_state = get_loaded_player_state(system, p_name)
 
@@ -276,7 +276,7 @@ end
 
 -- Sets the player state. Is expensive if the player is not currently in-game.
 -- Takes the system and player name, as well as a state to set.
-player_systems.set_player_state = function(system, p_name, state)
+player_systems.set_state = function(system, p_name, state)
 
 	if (get_loaded_player_state(system, p_name) ~= nil) then
 		set_loaded_player_state(system, p_name, state)
