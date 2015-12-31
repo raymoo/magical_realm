@@ -61,8 +61,8 @@ prep_form(metadata) - A function that should give a formspec for requesting
   names "startup" and "uses". If there is existing metadata, it uses those as
   the default value.
 
-parse_fields({fields}) - Parses the fields of prep_form into data that will be used when
-  the spell begins casting.
+parse_fields({fields}, "player_name") - Parses the fields of prep_form into
+  data that will be used when the spell begins casting.
 
   It must return two values. The first value represents the type of the result,
   and can be one of the following:

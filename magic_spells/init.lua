@@ -717,7 +717,7 @@ local function handle_fields(player, formname, fields)
 			return true
 		end
 
-		local res_type, result = spell.parse_fields(fields)
+		local res_type, result = spell.parse_fields(fields, p_name)
 
 		if (res_type == magic_spells.error) then
 			show_error_prep(p_name, s_name, result)
