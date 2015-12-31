@@ -294,8 +294,8 @@ end
 
 local def_fields =
 	"size[4, 5]"
-	.. "field[1,1;2,1;startup;Startup Time;0]"
-.. "field[1,3;2,1;uses;Uses (0 for infinite);0]"
+	.. "field[1,1;3,1;startup;Startup Time;0]"
+.. "field[1,3;3,1;uses;Uses (0 for infinite);0]"
 	.. "button[1,4;2,1;prepare;Prepare]"
 
 
@@ -699,7 +699,7 @@ end
 
 
 local conf_temp =
-	"size[4,2]label[1,0;This will cost %d of %d preparation slots. Are you sure?]"
+	"size[5,3]label[0.2,0;This will cost %d of %d preparation slots. \nAre you sure?]"
 	.. "label[1,1;You can hit ESC to go back.]button[1,2;2,1;confirm;Confirm]"
 
 
