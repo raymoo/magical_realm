@@ -28,6 +28,11 @@ local backup_interval = tonumber(minetest.setting_get("magic_backup_interval")) 
 local init_max_prep = tonumber(minetest.setting_get("magic_starting_points")) or 5
 
 
+magic_spells.error = 0
+magic_spells.incomplete = 1
+magic_spells.complete = 2
+
+
 -- ** Spells **
 --
 -- Spells are defined by a table containing these members:
@@ -41,11 +46,17 @@ local init_max_prep = tonumber(minetest.setting_get("magic_starting_points")) or
 -- By default, takes startup time, in a field named "startup", and whether the
 -- spell should be one-time use.
 --
--- parse_fields({fields}) - Determines whether the fields from the
--- formspec are valid. Should return
--- two values. The first is a success boolean, and the second is either an error string
--- if the parse failed, or a parsed metadata if it succeeded. For
--- example, you might convert numeric strings into numbers.
+-- parse_fields({fields}) - Parses the fields of the formspec into data that
+-- will be passed when the spell is finally cast. Must return two values. The
+-- first is one of magic_spells.error, magic_spells.incomplete, or magic_spells.finished.
+-- For each type,
+--
+--   error - The second return value must be an error string
+--   incomplete - The second return value must be a formspec, to continue the
+--     configuration.
+--   complete - The second return value must be the result data you wish to be
+--     passed along.
+--
 -- The default parses a startup time and returns a table containing that
 -- startup time, in the field "startup", as well as a field "uses"
 -- parsing a number in the fields "uses". The resultant data should be serializable
@@ -304,28 +315,28 @@ local function def_parse(fields)
 	local startup = tonumber(fields.startup)
 
 	if (startup == nil) then
-		return false, "Non-number startup"
+		return magic_spells.error, "Non-number startup"
 	end
 
 	if (startup < 0) then
-		return false, "Negative startup time"
+		return magic_spells.error, "Negative startup time"
 	end
 
 	local uses = tonumber(fields.uses)
 
 	if (uses == nil) then
-		return false, "Non-number uses"
+		return magic_spells.error, "Non-number uses"
 	end
 
 	if (uses < 0) then
-		return false, "Negative uses"
+		return magic_spells.error, "Negative uses"
 	end
 
 	if (uses == 0) then
 		uses = nil
 	end
 
-	return true, { startup = startup, uses = uses }
+	return magic_spells.complete, { startup = startup, uses = uses }
 
 end
 
@@ -771,10 +782,15 @@ local function handle_fields(player, formname, fields)
 			return true
 		end
 
-		local success, result = spell.parse_fields(fields)
+		local res_type, result = spell.parse_fields(fields)
 
-		if (not success) then
+		if (res_type == magic_spells.error) then
 			show_error_prep(p_name, s_name, result)
+			return true
+		end
+
+		if (res_type == magic_spells.incomplete) then
+			minetest.show_formspec(p_name, "magic:prep", result)
 			return true
 		end
 
