@@ -1080,3 +1080,9 @@ minetest.register_chatcommand("cast",
 
 					return (err == nil), err
 end})
+
+
+local modpath = minetest.get_modpath(minetest.get_current_modname()) .. "/"
+
+
+dofile(modpath .. "creative_stick.lua")
