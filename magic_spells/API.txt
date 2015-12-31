@@ -102,7 +102,7 @@ on_begin_cast(metadata, player, pointed_thing, func(startup, result_data)) -
 on_finish_cast(result_data) - This carries out the spells effect. It receives
   the result_data passed into the callback by on_begin_cast.
 
-Both result_data and metadata should be serializable by minetest.serialize.
+metadata should be serializable by minetest.serialize.
 
 
 magic_spells.give_spell("player_name", "spell_name")

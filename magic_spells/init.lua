@@ -173,15 +173,6 @@ local function initialize_caster()
 end
 
 
-player_systems.register_player_system("casters",
-				      { initialize_player = initialize_caster
-					, serialize_player = minetest.serialize
-					, deserialize_player = minetest.deserialize
-					, on_player_join = gen_HUD
-					, on_player_leave = function(p) huds[p] = nil end
-})
-
-
 local function backup()
 
 	player_systems.persist("casters")
@@ -760,6 +751,28 @@ local function handle_fields(player, formname, fields)
 
 	end
 end
+
+
+player_systems.register_player_system("casters",
+				      { initialize_player = initialize_caster
+					, serialize_player = minetest.serialize
+					, deserialize_player = minetest.deserialize
+					, on_player_join = function (p_name)
+						cancel_spell(p_name)
+						gen_HUD(p_name)
+					end
+					, on_player_leave = function(p)
+						huds[p] = nil
+					end
+})
+
+
+minetest.register_on_dieplayer(function(p)
+
+		local p_name = p:get_player_name()
+
+		cancel_spell(p_name)
+end)
 
 
 minetest.register_on_player_receive_fields(handle_fields)
