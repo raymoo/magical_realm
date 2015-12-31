@@ -169,6 +169,10 @@ local function initialize_caster()
 	caster_data.max_prep = init_max_prep
 	caster_data.prep_points = init_max_prep
 
+	-- The most recent settings for each spell. Used to show the caster the
+	-- last thing they chose during preparation.
+	caster_data.last_preps = {}
+
 	return caster_data
 end
 
@@ -211,11 +215,22 @@ local function set_prepared_meta(player_name, spell_name, prep_meta)
 end
 
 
-local def_fields =
+local def_fields_temp =
 	"size[4, 5]"
-	.. "field[1,1;3,1;startup;Startup Time;0]"
-.. "field[1,3;3,1;uses;Uses (0 for infinite);0]"
+	.. "field[1,1;3,1;startup;Startup Time;%d]"
+.. "field[1,3;3,1;uses;Uses (0 for infinite);%d]"
 	.. "button[1,4;2,1;prepare;Prepare]"
+
+
+local function def_fields(last_meta)
+
+	local last_startup = (last_meta and last_meta.startup) or 0
+	local last_uses = (last_meta and last_meta.uses) or 0
+
+	print(last_meta.uses)
+	
+	return string.format(def_fields_temp, last_startup, last_uses)
+end
 
 
 local function def_parse(fields)
@@ -335,6 +350,8 @@ local function prepare_spell(p_name, s_name, metadata, cost)
 	c_data.prepared_spells[s_name] = metadata
 
 	c_data.prep_points = c_data.prep_points - cost
+
+	c_data.last_preps[s_name] = copy_shal(metadata)
 
 	set_caster_data(p_name, c_data)
 end
@@ -577,14 +594,23 @@ local function show_prep(p_name, s_name)
 
 	local spell = spells[s_name]
 
+	local c_data = get_caster_data(p_name)
+
 	if (spell == nil) then
 		minetest.log("error", "Unknown Spell: " .. s_name)
 		return
 	end
 
+	if (c_data == nil) then
+		minetest.log("error", "Unknown Caster: " .. p_name)
+		return
+	end
+
+	local formspec = spell.prep_form(c_data.last_preps[s_name])
+
 	set_formspec_data(p_name, "magic:prep", s_name)
 
-	minetest.show_formspec(p_name, "magic:prep", spell.prep_form)
+	minetest.show_formspec(p_name, "magic:prep", formspec)
 end
 
 
