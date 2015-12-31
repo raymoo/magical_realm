@@ -785,7 +785,11 @@ end
 
 player_systems.register_player_system("casters",
 				      { initialize_player = initialize_caster
-					, serialize_player = minetest.serialize
+					, serialize_player = function(meta)
+						meta.current_spell = nil
+						minetest.serialize(meta)
+						return meta
+					end
 					, deserialize_player = minetest.deserialize
 					, on_player_join = function (p_name)
 						cancel_spell(p_name)
