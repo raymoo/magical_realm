@@ -1,0 +1,165 @@
+Configuration
+
+
+The mod responds to the following settings in minetest.conf:
+
+magic_prep_cooldown: Time in seconds a player has to wait between spell
+preparations. (3600)
+
+magic_backup_interval: Time in seconds between backups of caster data. (600)
+
+magic_starting_points: Initial number of maximum preparation points. (5)
+
+
+Spells
+=======
+
+The spell system has been designed to be fairly flexible, but there are a few
+opinionated choices I made.
+
+Spell balancing is startup-based: you are encouraged
+to balance your spells by making longer startups give drastically cheaper
+(in spell slots) spells. Other ways to balance could include mana usage or
+limiting uses (as the default configuration does), but there is special handling
+of startup time.
+
+Another one is that spells must be prepared in advance - you can only free up
+spell slots periodically (by default, an hour). This still allows you to make
+infinite-use spells, but players cannot change their prepared spell set very
+often. Currently, however, it would be possible for a player to leave their slots
+open until they need a certain spell, and then prepare it right befoer using it.
+One way this could be prevented is by requiring some unique-per-player node like
+an altar for spell preparation, so that players can only cheese this way in their
+own home.
+
+
+Spell Schools
+--------------
+
+To provide progression, this mod keeps track of aptitudes of players for different
+schools of magic. You could make light spells cheaper for someone specialized
+in fire magic or illusion magic, for example.
+
+
+Functions
+----------
+
+magic_spells.register_spell("spell_name", {spell_def})
+
+This registers a spell. spell_def has the following fields:
+
+display_name - The name displayed to players
+
+description - A description of the spell's mechanics, and possibly some
+  flavortext
+
+"prep_form" - A formspec for taking configuration options at preparation
+  time. By default, it has two fields, "startup" and "uses".
+
+parse_fields({fields}) - Parses the fields of prep_form into data that will be used when
+  the spell begins casting.
+
+  It must return two values. The first value represents the type of the result,
+  and can be one of the following:
+
+  magic_spells.error - This indicates an error. The second value must be an error
+  string.
+
+  magic_spells.incomplete - This indicates the formspec needs additional input.
+  The second value must be a formspec to send to the user.
+
+  magic_spells.complete - This indicates that the configuration is done. The
+  second value must be a parsed metadata.
+
+  The default parser looks for fields "startup" and "uses",
+  and parses them into a table of nonnegative numbers of the same names.
+
+prep_cost({aptitudes}, metadata) - Determines the cost of a spell. The table
+  aptitudes is a map from strings to nonnegative numbers, and represents the
+  caster's aptitude in various schools of magic. Making your spells cheaper
+  with higher aptitude is one way to introduce progression. the metadata is
+  the same metadata parsed out by parse_fields.
+
+on_begin_cast(metadata, player, pointed_thing, func(startup, result_data)) -
+  This is called when a player begins casting a spell. You should account for
+  pointed_thing being nil, in case a player casts something without pointing
+  at anything. The function argument is a callback, that you should call when
+  you wish to initiate casting. Most spells will probably call it after validating
+  the spell cast, but if you want additional casting-time configuration you
+  could call it from a formspec callback as well, for example. The result_data
+  will be passed to on_finish_cast.
+
+  The return value should be nil if the spell should be unprepared, for example if
+  it runs out of uses. Otherwise, the function should return a new metadata, which
+  will replace the old one. To keep the old metadata, you can return it unchanged.
+
+  By default, it takes as metadata with nonnegative integer values with keys
+  "startup" and "uses". "uses" may alternatively be nil, which indicates infinite
+  use. After making sure there are enough uses left, it calls the callback with the
+  given startup, and passing the player's name and pointed_thing in a table with
+  keys "player_name" and "pointed_thing" respectively.
+
+on_finish_cast(result_data) - This carries out the spells effect. It receives
+  the result_data passed into the callback by on_begin_cast.
+
+Both result_data and metadata should be serializable by minetest.serialize.
+
+
+magic_spells.give_spell("player_name", "spell_name")
+
+This spell grants the player knowledge of the given spell. Returns nil on
+success, otherwise returns an error string.
+
+
+magic_spells.take_spell("player_name", "spell_name")
+
+This spell revokes knowledge of a spell. Returns nil on success, otherwise
+returns an error string.
+
+
+magic_spells.get_prepared_meta("player_name", "spell_name")
+
+Gets a shallow copy of the metadata saved for a given spell preparation, or nil
+if it has not been prepared.
+
+
+magic_spells.set_prepared_meta("player_name", "spell_name", meta)
+
+Sets the player's metadata for a spell preparation, or unprepares the spell if
+nil is given.
+
+
+magic_spells.prepare_spells("player_name")
+
+Sends the player the preparation dialog.
+
+
+magic_spells.reset_preparation("player_name", force)
+
+Resets the player to an unprepared state, with full preparation slots. If
+force is true, the function will ignore any remaining preparation cooldown.
+Returns nil on success, otherwise an error string.
+
+
+magic_spells.cast(player, pointed_thing, "spell_name")
+
+Casts a spell from a player's prepared spells. pointed_thing may be nil. On
+success it returns nil, otherwise returns an error string.
+
+
+magic_spells.force_cast(player, pointed_thing, "spell_name", meta)
+
+Forces a player to cast a spell, with the given meta, regardless of preparation
+state.
+
+
+magic_spells.cancel_cast("player_name")
+
+Makes the player cancel the spell they are currently casting. Returns nil
+on success, otherwise returns an error string.
+
+
+magic_spells.get_current_spell("player_name")
+
+Gets the spell a player is currently casting. If the player is not casting a
+spell, it returns nil.
