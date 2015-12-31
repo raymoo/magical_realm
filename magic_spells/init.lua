@@ -599,10 +599,10 @@ end)
 
 
 local selection_temp =
-	"size[8,8]label[1,0;Select a spell to prepare]"
-	.. "textlist[1,0.5;3,6;selected;%s]"
+	"size[8,8]label[0.5,0;Select a spell to prepare]"
+	.. "textlist[0.5,0.5;3,6;selected;%s]"
 	.. "button[3.5,7;2,1;prepare;Prepare]"
-	.. "textarea[4,0.5;3.5,6;desc;Description;%s]"
+	.. "textarea[4.5,0.5;3.5,6;desc;Description;%s]"
 
 
 local function show_select_prep(p_name)
