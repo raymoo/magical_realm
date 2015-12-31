@@ -71,7 +71,8 @@ parse_fields({fields}, "player_name") - Parses the fields of prep_form into
   string.
 
   magic_spells.incomplete - This indicates the formspec needs additional input.
-  The second value must be a formspec to send to the user.
+  The second value can be nil or a formspec to send to the user. If it is nil,
+  nothing happens.
 
   magic_spells.complete - This indicates that the configuration is done. The
   second value must be a parsed metadata.

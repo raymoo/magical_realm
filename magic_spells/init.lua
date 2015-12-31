@@ -725,7 +725,11 @@ local function handle_fields(player, formname, fields)
 		end
 
 		if (res_type == magic_spells.incomplete) then
-			minetest.show_formspec(p_name, "magic:prep", result)
+
+			if (result ~= nil) then
+				minetest.show_formspec(p_name, "magic:prep", result)
+			end
+			
 			return true
 		end
 
