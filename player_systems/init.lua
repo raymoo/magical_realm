@@ -200,12 +200,12 @@ local function handle_player_leave(system, player)
 		return
 	end
 
-	local player_state = get_loaded_player_state(system, player)
-
 	if (cur_system.on_player_leave ~= nil) then
 		cur_system.on_player_leave(player)
 	end
 
+	local player_state = get_loaded_player_state(system, player)
+		
 	persist_player_state(system, player, player_state)
 
 	del_loaded_player_state(system, player)
