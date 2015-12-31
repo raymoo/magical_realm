@@ -474,7 +474,8 @@ local function cancel_spell(p_name)
 end
 
 
--- Forces a player to cast a spell, inputting arbitrary metadata
+-- Forces a player to cast a spell, inputting arbitrary metadata. Returns the
+-- updated metadata.
 local function force_cast_spell(player, pointed_thing, s_name, meta)
 
 	local p_name = player:get_player_name()
@@ -516,9 +517,7 @@ local function force_cast_spell(player, pointed_thing, s_name, meta)
 	end
 
 	-- Spellcasting new meta
-	local new_meta = spell.on_begin_cast(meta, player, pointed_thing, callback)
-
-	set_prepared_meta(p_name, s_name, new_meta)
+	return spell.on_begin_cast(meta, player, pointed_thing, callback)
 end
 
 
@@ -544,7 +543,9 @@ local function cast_spell(player, pointed_thing, s_name)
 		return "Player is already casting something"
 	end
 
-	force_cast_spell(player, pointed_thing, s_name, prep_meta)
+	local new_meta = force_cast_spell(player, pointed_thing, s_name, prep_meta)
+
+	set_prepared_meta(p_name, s_name, new_meta)
 
 	return nil
 end
