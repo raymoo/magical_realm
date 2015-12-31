@@ -226,8 +226,6 @@ local function def_fields(last_meta)
 
 	local last_startup = (last_meta and last_meta.startup) or 0
 	local last_uses = (last_meta and last_meta.uses) or 0
-
-	print(last_meta.uses)
 	
 	return string.format(def_fields_temp, last_startup, last_uses)
 end
