@@ -1,15 +1,3 @@
--- ** Configuration **
---
--- The mod responds to the following settings in minetest.conf
---
--- magic_prep_cooldown: Time in seconds a player has to wait between spell
--- preparations.
---
--- magic_backup_interval: Time in seconds between backups of caster data.
---
--- magic_starting_points: Initial number of maximum preparation points. Defaults
--- to 5.
-
 magic_spells = {}
 
 
@@ -31,77 +19,6 @@ local init_max_prep = tonumber(minetest.setting_get("magic_starting_points")) or
 magic_spells.error = 0
 magic_spells.incomplete = 1
 magic_spells.complete = 2
-
-
--- ** Spells **
---
--- Spells are defined by a table containing these members:
---
--- display_name - A string displayed to the player.
---
--- description - Description of the spell, including mechanics and flavor text.
---
--- prep_form - A formspec string for taking configuration options at preparation
--- time.
--- By default, takes startup time, in a field named "startup", and whether the
--- spell should be one-time use.
---
--- parse_fields({fields}) - Parses the fields of the formspec into data that
--- will be passed when the spell is finally cast. Must return two values. The
--- first is one of magic_spells.error, magic_spells.incomplete, or magic_spells.finished.
--- For each type,
---
---   error - The second return value must be an error string
---   incomplete - The second return value must be a formspec, to continue the
---     configuration.
---   complete - The second return value must be the result data you wish to be
---     passed along.
---
--- The default parses a startup time and returns a table containing that
--- startup time, in the field "startup", as well as a field "uses"
--- parsing a number in the fields "uses". The resultant data should be serializable
--- by minetest.serialize.
---
--- prep_cost({aptitudes}, metadata) - A function for determining spell preparation cost.
--- aptitudes is a table of caster aptitudes, described later.
---
--- on_begin_cast(metadata, player, pointed_thing, func(startup, result_data)) - called
--- when a player begins casting a spell.
--- The function passed in will initiate casting when called, and after
--- startup, takes the same arguments as on_finish_cast. If for some reason the spell cannot
--- be cast, don't call the callback. startup is in seconds, and a startup of 0 will
--- result in immediate effects. More complex things are possible as well,
--- such as showing the player a formspec for casting-time configuration and then
--- calling the callback after info is received. Should return an updated version
--- of the metadata - returning nil will unprepare the spell. The value passed
--- for result data should be serializable.
--- By default, gets the startup time from the metadata, decrements remaining uses,
--- and calls the
--- callback, passing in the "player_name", and pointed_thing, in a table.
---
--- on_finish_cast(result_data) - takes whatever arguments, and actually carries out the
--- spell effect.
--- If using the default on_begin_cast, will receive a table containing a table with
--- a player name "player_name" and a pointed_thing pointed_thing.
-
-
--- ** Spell Configurations **
---
--- Spells can be configurable. When defining a spell, if a spell's prep_form field
--- is not nil, players will be shown a configuration screen for setting them.
---
--- If the fields element is a formspec string, it will send the player the formspec,
--- and the unparsed fields will just be the fields given by on_player_receive_fields.
-
-
--- ** Spell Schools **
---
--- Spells may conceptually belong to a school, which is like a sphere of study.
--- Spellcasters may have certain aptitudes for different schools, which is
--- represented by a table of nonnegative numbers indexed by school names.
---
--- If your spell gains power from aptitude in a certain school, you should
--- probably include it in the description.
 
 
 local function get_caster_data(player_name)
@@ -848,9 +765,6 @@ end
 minetest.register_on_player_receive_fields(handle_fields)
 	
 
--- magic_spells.register_spell("name", {spell})
---
--- Takes a spell name and definition, and registers it.
 magic_spells.register_spell = function(name, spell)
 	
 	if (spells[name] ~= nil) then
@@ -867,9 +781,6 @@ magic_spells.register_spell = function(name, spell)
 end
 
 
--- magic_spells.give_spell("player_name", "spell_name")
--- Gives the player knowledge of a spell. Returns nil on success, error message
--- on failure.
 magic_spells.give_spell = function(p_name, s_name)
 
 	if (spells[s_name] == nil) then return "Spell " .. s_name .. " does not exist" end
@@ -884,8 +795,6 @@ magic_spells.give_spell = function(p_name, s_name)
 end
 
 
--- magic_spells.take_spell("player_name", "spell_name")
--- Same as above. Does not error on nonexistent spells.
 magic_spells.take_spell = function(p_name, s_name)
 
 	local c_data = get_caster_data(p_name)
@@ -898,28 +807,15 @@ magic_spells.take_spell = function(p_name, s_name)
 end
 
 
-
--- magic_spells.get_prepared_meta("player_name", "spell_name")
--- Gets the metadata for a prepared spell, returning nil if not existing. This
--- is a shallow copy.
 magic_spells.get_prepared_meta = get_prepared_meta
 
 
--- magic_spells.set_prepared_meta("player_name", "spell_name", meta)
--- Sets the metadata for a prepared spell, unpreparing if it is set to nil.
--- This does a shallow copy of the argument.
 magic_spells.set_prepared_meta = set_prepared_meta
 
 
--- magic_spells.prepare_spells("player_name")
--- Shows the player the spell preparation dialog.
 magic_spells.prepare_spells = show_select_prep
 
 
--- magic_spells.reset_preparation("player_name", force)
--- Resets the player to unprepared state, and resets the preparation timer.
--- force is a boolean that tells whether to ignore the timer or not. Returns
--- nil on success, otherwise returns an error string.
 magic_spells.reset_preparation = function (p_name, force)
 
 	local c_data = get_caster_data(p_name)
@@ -941,21 +837,12 @@ magic_spells.reset_preparation = function (p_name, force)
 end
 
 
--- magic_spells.cast(player, pointed_thing, s_name)
--- Casts a spell from a player's prepared spells. pointed_thing may be nil.
--- On success returns nil, otherwise returns an error string.
 magic_spells.cast = cast_spell
 
 
--- magic_spells.force_cast(player, pointed_thing, s_name, meta)
--- Forces a player to cast a spell, regardless of preparedness or existing spell.
--- Does not return errors.
 magic_spells.force_cast = force_cast_spell
 
 
--- magic_spells.cancel_cast("player_name")
--- Makes the player drop the spell they are currently casting. Returns nil
--- on success, otherwise returns an error string.
 magic_spells.cancel_cast = function(p_name)
 
 	local c_data = get_caster_data(p_name)
@@ -968,9 +855,6 @@ magic_spells.cancel_cast = function(p_name)
 end
 
 
--- magic_spells.get_current_spell("player_name")
--- Gets the current spell name of a player. If the player is not casting a
--- spell, it returns nil.
 magic_spells.get_current_spell = function(p_name)
 
 	local c_data = get_caster_data(p_name)
