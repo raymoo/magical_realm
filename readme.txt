@@ -32,3 +32,5 @@ Current Spells (Display name in parentheses):
 
 summon_tnt (Summon Lit TNT) - Places a lit tnt node where you are looking when your
   casting finishes.
+
+magic_missile (Magic Missile) - Shoots homing force bolts.
