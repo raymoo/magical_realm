@@ -1,4 +1,7 @@
 
+local wand_range = tonumber(minetest.setting_get("magic_creative_wand_range")) or 30
+
+
 local texture = "default_mese_crystal_fragment.png^default_stick.png"
 
 local selected_sticks = {}
@@ -83,6 +86,7 @@ minetest.register_craftitem("magic_spells:creative_stick",
 			      inventory_image = texture,
 			      wield_image = texture,
 			      stack_max = 1,
+			      range = wand_range,
 			      liquids_pointable = true,
 			      on_place = show_stick,
 			      on_use = stick_cast
