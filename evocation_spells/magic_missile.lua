@@ -41,7 +41,7 @@ local form_temp =
 	.. "button[4.5,5;2,1;prepare;Prepare]"
 
 
-local function mk_form(last_meta)
+local function mk_form(last_meta, p_name)
 
 	local def_count, def_startup, def_uses
 	
@@ -54,6 +54,8 @@ local function mk_form(last_meta)
 		def_startup = last_meta.startup or 0.5
 		def_uses = last_meta.uses or 0
 	end
+
+	form_data[p_name] = def_count
 
 	return string.format(form_temp, def_count, def_startup, def_uses)
 
