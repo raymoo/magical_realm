@@ -86,10 +86,6 @@ local function handle_fields(player, formname, fields)
 
 		local s_name = data.spell_names[data.idx]
 
-		print(data.idx)
-
-		print(s_name)
-
 		if (s_name == nil) then
 			show_select_learn(p_name)
 			return true
