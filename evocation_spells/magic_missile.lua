@@ -133,7 +133,7 @@ local function calculate_cost(aptitudes, meta)
 	if (meta.uses == nil) then
 		return math.ceil(2 * math.pow(meta.count, 2) / (meta.startup + 1))
 	else
-		return math.ceil(2 * meta.count / (meta.startup + 1))
+		return math.ceil(meta.uses * 2 * meta.count / (meta.startup + 1))
 	end
 
 end
