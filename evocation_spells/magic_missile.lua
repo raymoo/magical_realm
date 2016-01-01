@@ -23,7 +23,7 @@ local spell_name = "magic_missile"
 
 local description =
 	"A homing bolt of force flies toward your target.\n\n"
-	.. "Each missile does two hearts of damage.\n\n"
+	.. "Each missile does one heart of damage.\n\n"
 .. "Cost: \nmissile_count^2 * 2 / (startup + 1) if unlimited uses\n"
 	.. "uses * missile_count * 2 / (startup + 1) otherwise\n\n"
 	.. "Costs are rounded up."
@@ -190,7 +190,7 @@ local function cast_missile(result)
 
 		local p_pos = player:getpos()
 
-		local mis_pos = vector.add(p_pos, {x=0, y=1, z=0})
+		local mis_pos = vector.add(p_pos, {x=0, y=1.4, z=0})
 
 		local missile =
 			minetest.add_entity(mis_pos, "evocation_spells:magic_missile")
@@ -199,9 +199,9 @@ local function cast_missile(result)
 
 			local ent = missile:get_luaentity()
 
-			local x = math.random(-1, 1)
-			local y = math.random(0, 1)
-			local z = math.random(-1, 1)
+			local x = math.random(-3, 3)
+			local y = math.random(0, 3)
+			local z = math.random(-3, 3)
 
 			ent.target = target
 
@@ -218,7 +218,9 @@ minetest.register_entity("evocation_spells:magic_missile",
 			 { target = nil,
 			   lifetime = 10,
 			   hp_max = 1,
-			   physical = false,
+			   physical = true,
+			   collide_with_objects = false,
+			   collisionbox = { -0.1, -0.1, -0.1, 0.1, 0.1, 0.1 },
 			   visual = "sprite",
 			   visual_size = { x = 0.5, y = 0.5 },
 			   textures = {"evocation_spells_magic_missile.png"},
@@ -250,7 +252,7 @@ minetest.register_entity("evocation_spells:magic_missile",
 							     1,
 							     { full_punch_interval = 1,
 							       max_drop_level = 0,
-							       damage_groups = { fleshy = 4 }
+							       damage_groups = { fleshy = 2 }
 							     },
 							     dir)
 							     
@@ -267,6 +269,15 @@ minetest.register_entity("evocation_spells:magic_missile",
 				   end
 
 				   self.object:setacceleration(vector.multiply(dir, 10))
+
+				   local cur_vel = self.object:getvelocity()
+
+				   if (vector.length(cur_vel) > 3) then
+
+					   local new_vel = vector.multiply(vector.normalize(cur_vel), 3)
+
+					   self.object:setvelocity(new_vel)
+				   end
 end})
 
 
