@@ -604,7 +604,7 @@ local function show_prep(p_name, s_name)
 		return
 	end
 
-	local formspec = spell.prep_form(c_data.last_preps[s_name])
+	local formspec = spell.prep_form(c_data.last_preps[s_name], p_name)
 
 	set_formspec_data(p_name, "magic:prep", s_name)
 

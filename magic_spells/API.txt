@@ -53,9 +53,10 @@ display_name - The name displayed to players
 description - A description of the spell's mechanics, and possibly some
   flavortext
 
-prep_form(metadata) - A function that should give a formspec for requesting
+prep_form(metadata, "player_name") - A function that should give a formspec for requesting
   spell configuration. It gets the last chosen setup as input, so that the
-  formspec can default to the previous preparation choice.
+  formspec can default to the previous preparation choice. You also get the
+  player name, in case you need some set up for form handling.
 
   By default, creates a form with two fields for startup and uses, with
   names "startup" and "uses". If there is existing metadata, it uses those as
