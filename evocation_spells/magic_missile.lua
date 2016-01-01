@@ -24,7 +24,7 @@ local spell_name = "magic_missile"
 local description =
 	"A homing bolt of force flies toward your target.\n\n"
 	.. "Each missile does two hearts of damage.\n\n"
-.. "Cost: \nmissile_count^2 * 2 / (startup + 1) if unlimited uses"
+.. "Cost: \nmissile_count^2 * 2 / (startup + 1) if unlimited uses\n"
 	.. "uses * missile_count * 2 / (startup + 1) otherwise\n\n"
 	.. "Costs are rounded up."
 
