@@ -131,9 +131,10 @@ local function caster_step(dtime)
 				
 				data.current_spell = nil
 			end
-		end
 
-		update_HUD(name)
+			update_HUD(name)
+
+		end
 
 	end
 
