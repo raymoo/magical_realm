@@ -21,6 +21,9 @@ To use the wand, first select a spell by right-clicking. Then you can cast the s
 by left-clicking. Note the spell name you input must be the real spell name rather
 than the display name.
 
+To remove all your prepared spells, go to the spell-learning menu and hit
+"Unprepare".
+
 
 evocation_spells
 ----------------

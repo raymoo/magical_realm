@@ -9,6 +9,7 @@ local template =
 	.. "textlist[0.5,0.5;3,6;selected;%s]"
 	.. "button[3.5,7;2,1;learn;Learn]"
 	.. "textarea[4.5,0.5;3.5,6;desc;Description;%s]"
+	.. "button[5.5,7;2,1;unprepare;Unprepare]"
 
 
 -- Stores a table with idx, spell_names, descs, text_list
@@ -61,7 +62,18 @@ local function handle_fields(player, formname, fields)
 
 		data.idx = tonumber(event.index)
 
-		local description = data.descs[data.idx] or ""
+		local selected_desc = data.descs[data.idx]
+
+		local description
+
+		if (selected_desc == nil) then
+			description = ""
+		else
+			local s_name = data.spell_names[data.idx]
+			
+			description =
+				selected_desc .. "\n\nEnter in creative wand: " .. s_name
+		end
 
 		local formspec = string.format(template, data.text_list, description)
 
@@ -91,6 +103,18 @@ local function handle_fields(player, formname, fields)
 		end
 
 		show_select_learn(p_name)
+
+		return true
+	end
+
+	if (fields["unprepare"]) then
+
+		local err = magic_spells.reset_preparation(p_name, true)
+		if (err ~= nil) then
+			minetest.chat_send_player(p_name, err)
+		else
+			minetest.chat_send_player(p_name, "Preparation slots restored.")
+		end
 
 		return true
 	end
