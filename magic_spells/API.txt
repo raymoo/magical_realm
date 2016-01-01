@@ -170,3 +170,11 @@ magic_spells.get_current_spell("player_name")
 
 Gets the spell a player is currently casting. If the player is not casting a
 spell, it returns nil.
+
+
+Misc
+-----
+
+magic_spells.registered_spells
+
+Table of spell definitions, indexed by name.

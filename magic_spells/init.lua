@@ -908,6 +908,9 @@ magic_spells.get_current_spell = function(p_name)
 end
 
 
+magic_spells.registered_spells = spells
+
+
 -- Privileges / Commands
 
 
