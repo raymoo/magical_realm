@@ -240,7 +240,8 @@ minetest.register_entity("evocation_spells:magic_missile",
 
 				   local self_pos = self.object:getpos()
 
-				   local other_pos = self.target:getpos()
+				   local other_pos =
+					   vector.add(self.target:getpos(), {x=0, y=1.4, z=0})
 
 				   local dir = vector.direction(self_pos,other_pos)
 
