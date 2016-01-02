@@ -177,7 +177,7 @@ local function begin_cast(meta, player, pointed_thing, callback)
 	})
 
 	if (meta.uses ~= nil) then
-		minetest.chat_send_player(player:get_player_name(), "You now have " .. meta.uses " uses.")
+		minetest.chat_send_player(player:get_player_name(), "You now have " .. meta.uses .. " uses.")
 	end
 
 	if (meta.uses == 0) then
