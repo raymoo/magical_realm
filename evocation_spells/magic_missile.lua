@@ -156,7 +156,12 @@ local function begin_cast(meta, player, pointed_thing, callback)
 
 	local target = pointed_thing and pointed_thing.ref
 
-	if (target == nil or not target:is_player()) then
+	if (target == nil) then
+		if (player:is_player()) then
+			minetest.chat_send_player(player:get_player_name(),
+						  "You must target a player")
+		end
+		
 		return meta
 	end
 
