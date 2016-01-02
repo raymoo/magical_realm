@@ -107,6 +107,7 @@ local function stick_cast(stack, player, pointed_thing)
 		return nil
 	end
 
+	minetest.after(0, function ()
 	
 	local err = magic_spells.cast(player, pointed_thing, s_name)
 
@@ -114,7 +115,7 @@ local function stick_cast(stack, player, pointed_thing)
 		minetest.chat_send_player(player:get_player_name(), err)
 	end
 
-	return nil
+	end)
 end
 
 
