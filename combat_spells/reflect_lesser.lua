@@ -4,16 +4,15 @@
 -- A spell for reflecting weak magical projectiles. When cast, it will reflect
 -- weak magical projectiles back to their users, if possible.
 --
--- To make your projectile (entity) reflectable, put in its property table a
--- field called magical. The value should be a table with at least these
--- key/values:
+-- To make your projectile (entity) reflectable, its property table should have
+-- the following values:
 --
--- power - A number, representing how strong the projectile is. This spell
+-- magical_power - A number, representing how strong the projectile is. This spell
 -- can reflect projectiles of level 2 or lower.
 --
--- owner - An ObjectRef to the owner of the projectile
+-- magical_owner - An ObjectRef to the owner of the projectile
 --
--- reflect(self, new_owner) - A function that takes itself (luaentity) as an
+-- magical_reflect(self, new_owner) - A function that takes itself (luaentity) as an
 -- argument, and does the necessary things to start heading back to the
 -- original owner. new_owner is the spellcaster that reflected the projectile.
 -- It may or may not be another player.
@@ -150,20 +149,17 @@ local function reflect_spells(player)
 
 		if (ent ~= nil) then
 
-			local minfo = ent.magical
+			local power = ent.magical_power
+			local owner = ent.magical_owner
+			local reflect = ent.magical_reflect
 
-			if (minfo ~= nil) then
-
-				local power = minfo.power
-				local owner = minfo.power
-
-				if (power ~= nil
-					    and owner ~= nil
-					    and power <= max_power
-					    and owner ~= player
-				) then					
-					minfo.reflect(ent, player)
-				end
+			if (power ~= nil
+				    and owner ~= nil
+				    and reflect ~= nil
+				    and power <= max_power
+				    and owner ~= player
+			) then					
+				reflect(ent, player)
 			end
 		end
 	end
