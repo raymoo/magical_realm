@@ -100,6 +100,8 @@ local function gen_HUD(player_name)
 end
 			
 
+local log_finish_temp = "[magic_spells] %s finishes casting %s at %s"
+
 local function caster_step(dtime)
 
 	local active_casters = player_systems.active_states("casters")
@@ -119,10 +121,19 @@ local function caster_step(dtime)
 
 				cur_spell.remaining_time = new_rem
 			else
-				local s_name = cur_spell.spell_name
+
+ 				local s_name = cur_spell.spell_name
 
 				local spell = spells[s_name]
 
+				local player = minetest.get_player_by_name(name)
+
+				local pos_string = minetest.pos_to_string(player:getpos())
+
+				local mes = string.format(log_finish_temp, name, s_name, pos_string)
+
+				minetest.log("action", mes)
+				
 				if (spell == nil) then
 					minetest.log("error", "Casting unknown spell: " .. s_name)
 				else
@@ -332,6 +343,9 @@ local function cancel_spell(p_name)
 end
 
 
+local log_begin_temp = "[magic_spells] %s begins casting %s at %s"
+
+
 -- Forces a player to cast a spell, inputting arbitrary metadata. Returns the
 -- updated metadata.
 local function force_cast_spell(player, pointed_thing, s_name, meta)
@@ -341,6 +355,10 @@ local function force_cast_spell(player, pointed_thing, s_name, meta)
 	local c_data = get_caster_data(p_name)
 
 	local spell = spells[s_name]
+
+	local pos_string = minetest.pos_to_string(player:getpos())
+
+	minetest.log("action", string.format(log_begin_temp, p_name, s_name, pos_string))
 
 	if (c_data == nil) then
 		minetest.log("error", p_name .. " doesn't exist, so can't cast.")
@@ -354,7 +372,11 @@ local function force_cast_spell(player, pointed_thing, s_name, meta)
 
 	local function callback(startup, result_data)
 
+		local pos_later = minetest.pos_to_string(player:getpos())
+
 		if (startup == 0) then
+			local mes = string.format(log_finish_temp, p_name, s_name, pos_later)
+			minetest.log("action", mes)
 			spell.on_finish_cast(result_data)
 		else
 			local cb_caster = get_caster_data(p_name)
