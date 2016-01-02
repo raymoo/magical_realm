@@ -2,14 +2,13 @@
 local texture = "default_book.png^[colorize:#5412B8:127"
 
 
-local formname = "magic_spells:creative_book"
+local formname = "magic_spells:learn_spells"
 
-local template =
+local learn_template =
 	"size[8,8]label[0.5,0;Select a spell to learn]"
 	.. "textlist[0.5,0.5;3,6;selected;%s]"
 	.. "button[3.5,7;2,1;learn;Learn]"
 	.. "textarea[4.5,0.5;3.5,6;desc;Description;%s]"
-	.. "button[5.5,7;2,1;unprepare;Unprepare]"
 
 
 -- Stores a table with idx, spell_names, descs, text_list
@@ -33,7 +32,7 @@ local function show_select_learn(p_name)
 
 	local text_list = table.concat(display_names, ",")
 
-	local formspec = string.format(template, text_list, "")
+	local formspec = string.format(learn_template, text_list, "")
 
 	formdata[p_name] =
 		{ idx = nil,
@@ -42,7 +41,7 @@ local function show_select_learn(p_name)
 		  text_list = text_list
 		}
 
-	minetest.show_formspec(p_name, formname, formspec)
+	minetest.after(0, minetest.show_formspec, p_name, formname, formspec)
 end
 
 
@@ -75,7 +74,7 @@ local function handle_fields(player, formname, fields)
 				selected_desc .. "\n\nEnter in creative wand: " .. s_name
 		end
 
-		local formspec = string.format(template, data.text_list, description)
+		local formspec = string.format(learn_template, data.text_list, description)
 
 		minetest.show_formspec(p_name, formname, formspec)
 
@@ -122,6 +121,42 @@ end
 minetest.register_on_player_receive_fields(handle_fields)
 
 
+main_form = smartfs.create("magic_spells:creative_spellbook",
+			   function(state)
+	local p_name = state.player
+
+	state:size(5, 2.5)
+
+	local prep_butt = state:button(0.33,0.16, 2,1, "prep", "Prepare")
+	local unprep_butt = state:button(2.67,0.16, 2,1, "unprep", "Unprepare")
+	local learn_butt = state:button(1.5,1.33, 2,1, "learn", "Learn")
+
+	prep_butt:click(function(self, state)
+			magic_spells.prepare_spells(p_name)
+	end)
+
+	unprep_butt:click(function(self, state)
+			local err = magic_spells.reset_preparation(p_name, true)
+
+			if (err ~= nil) then
+				minetest.chat_send_player(p_name, err)
+			else
+				minetest.chat_send_player(p_name, "Slots restored.")
+			end
+	end)
+
+	learn_butt:click(function(self, state)
+			show_select_learn(p_name)
+	end)
+end)
+
+
+local function show_main_form(stack, player, pointed_thing)
+
+	main_form:show(player:get_player_name())
+end
+
+
 minetest.register_craftitem("magic_spells:creative_spellbook",
 			    { description = "Creative Spellbook",
 			      inventory_image = texture,
@@ -129,13 +164,7 @@ minetest.register_craftitem("magic_spells:creative_spellbook",
 			      stack_max = 1,
 			      range = 10,
 			      liquids_pointable = true,
-			      on_place = function(stack, player, pointed_thing)
+			      on_place = show_main_form,
+			      on_use = show_main_form
 
-				      magic_spells.prepare_spells(player:get_player_name())
-			      end,
-
-			      on_use = function(stack, player, pointed_thing)
-
-				      show_select_learn(player:get_player_name())
-
-end})
+})
