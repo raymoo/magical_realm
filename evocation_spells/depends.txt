@@ -1,3 +1,4 @@
 magic_spells
 fire
 tnt
+smartfs
