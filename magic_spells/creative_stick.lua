@@ -83,7 +83,9 @@ local function show_stick(stack, player, pointed_thing)
 
 	for s_name, def in pairs(magic_spells.registered_spells) do
 
-		table.insert(prepareds, s_name)
+		if (magic_spells.get_prepared_meta(p_name, s_name) ~= nil) then
+			table.insert(prepareds, s_name)
+		end
 	end
 
 	stick_form:show(p_name, prepareds)
