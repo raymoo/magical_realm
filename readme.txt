@@ -20,8 +20,7 @@ To learn a spell, left-click with the spellbook, choose a spell, and hit "Learn"
 To prepare a spell, right-click with the spellbook, and choose a spell through there.
 
 To use the wand, first select a spell by right-clicking. Then you can cast the spell
-by left-clicking. Note the spell name you input must be the real spell name rather
-than the display name.
+by left-clicking.
 
 To remove all your prepared spells, go to the spell-learning menu and hit
 "Unprepare".
