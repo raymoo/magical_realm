@@ -154,7 +154,7 @@ end
 
 local function begin_cast(meta, player, pointed_thing, callback)
 
-	local target = pointed_thing.ref
+	local target = pointed_thing and pointed_thing.ref
 
 	if (target == nil or not target:is_player()) then
 		return meta
