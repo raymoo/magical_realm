@@ -26,10 +26,10 @@ To remove all your prepared spells, go to the spell-learning menu and hit
 "Unprepare".
 
 
-evocation_spells
+combat_spells
 ----------------
 
-Spells mostly involving destructive or energetic effects.
+Spells geared for fighting or defending against other players
 
 Current Spells (Display name in parentheses):
 
