@@ -1,9 +1,8 @@
 
 -- Spell Info
 --
--- Metadata: A table with three numerical fields:
+-- Metadata: A table with two numerical fields:
 --  count: The number of missiles
---  startup: The casting startup
 --  uses: The number of uses (nil for infinite)
 --
 -- Result Data: A table containing a reference to a target object, "target",
@@ -11,7 +10,6 @@
 --
 -- Smart Formspec:
 --   A textlist allowing the choice of 1, 2, 3, 4, or 5 missiles
---   A field for entering startup time
 --   A field for entering use count (0 for infinite)
 --   A button to finish preparation.
 --
@@ -22,33 +20,21 @@ local spell_name = "magic_missile"
 
 local description =
 	"A homing bolt of force flies toward your target.\n\n"
-	.. "Each missile does one heart of damage.\n\n"
-.. "Cost: \nmissile_count^2 * 2 / (startup + 1) if unlimited uses\n"
-	.. "uses * missile_count * 2 / (startup + 1) otherwise\n\n"
-	.. "Costs are rounded up."
+	.. "Each missile does one heart of damage.\n"
+	.. "If unlimited uses is chosen, startup is missile_count seconds.\n\n"
+	.. "Cost: uses * missile_count \n"
+	.. "missile_count^2 (Unlimited uses)"
 
 
-local function handle_prep(count_str, startup_str, uses_str, succ_cb, err_cb)
+local function handle_prep(count_str, uses_str, succ_cb, err_cb)
 
 	local count = tonumber(count_str)
-
-	local startup = tonumber(startup_str)
 
 	local uses = tonumber(uses_str)
 
 
-	if (startup == nil) then
-		err_cb("Startup not a number")
-		return
-	end
-
 	if (uses == nil) then
 		err_cb("Uses not a number")
-		return
-	end
-
-	if (startup < 0) then
-		err_cb("Startup is negative")
 		return
 	end
 
@@ -74,7 +60,6 @@ local function handle_prep(count_str, startup_str, uses_str, succ_cb, err_cb)
 	end
 
 	succ_cb({ count = count,
-		  startup = startup,
 		  uses = uses
 	})
 end
@@ -84,15 +69,13 @@ local mm_form = smartfs.create("combat_spells:magic_missile", function(state)
 				       
 	state:size(8,6)
 
-	local def_count, def_startup, def_uses
+	local def_count, def_uses
 
 	if (state.param.metadata == nil) then
 		def_count = 1
-		def_startup = 0
 		def_uses = 0
 	else
 		def_count = state.param.metadata.count
-		def_startup = state.param.metadata.startup
 		def_uses = state.param.metadata.uses or 0
 	end
 		
@@ -106,8 +89,6 @@ local mm_form = smartfs.create("combat_spells:magic_missile", function(state)
 	count_box:addItem("4 Missiles")
 	count_box:addItem("5 Missiles")
 
-	local startup_field = state:field(4.5,0.5, 3,2, "startup", "Startup:")
-	startup_field:setText("" .. def_startup)
 
 	local uses_field = state:field(4.5,2.5, 3,2, "uses", "Uses (0 for infinite)")
 	uses_field:setText("" .. def_uses)
@@ -122,10 +103,9 @@ local mm_form = smartfs.create("combat_spells:magic_missile", function(state)
 	butt:click(function(self, state)
 
 			local count_str = state.count_idx or ""
-			local startup_str = startup_field:getText()
 			local uses_str = uses_field:getText()
 
-			handle_prep(count_str, startup_str, uses_str,
+			handle_prep(count_str, uses_str,
 				    state.param.succ_cb, state.param.err_cb)
 
 	end)
@@ -144,9 +124,9 @@ end
 local function calculate_cost(aptitudes, meta)
 
 	if (meta.uses == nil) then
-		return math.ceil(2 * math.pow(meta.count, 2) / (meta.startup + 1))
+		return math.ceil(math.pow(meta.count,2))
 	else
-		return math.ceil(meta.uses * 2 * meta.count / (meta.startup + 1))
+		return math.ceil(meta.uses * meta.count)
 	end
 
 end
@@ -170,7 +150,14 @@ local function begin_cast(meta, player, pointed_thing, callback)
 		meta.uses = meta.uses - 1
 	end
 
-	callback(meta.startup,
+	local startup
+	if (meta.uses == nil) then
+		startup = meta.count
+	else
+		startup = 0
+	end
+
+	callback(startup,
 		 { target = target,
 		   count = meta.count,
 		   player = player
