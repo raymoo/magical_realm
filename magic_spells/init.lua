@@ -660,6 +660,11 @@ err_form = smartfs.create("magic_spells:err_prep", function(state)
 				       local p_name = state.player
 				       local s_name = state.param.spell_name
 
+				       if (state.param.prep_cb == nil) then
+					       show_select_prep(p_name)
+					       return
+				       end
+
 				       show_prep(p_name, s_name, state.param.prep_cb)
 		       end)
 end)
@@ -698,6 +703,11 @@ conf_form = smartfs.create("magic_spells:conf_prep", function(state)
 				   end)
 
 				   no:click(function(self, state)
+
+						   if (prep_cb == nil) then
+							   show_select_prep(p_name)
+							   return
+						   end
 
 						   show_prep(p_name, s_name, prep_cb)
 				   end)
