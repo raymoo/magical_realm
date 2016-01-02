@@ -53,33 +53,16 @@ display_name - The name displayed to players
 description - A description of the spell's mechanics, and possibly some
   flavortext
 
-prep_form(metadata, "player_name") - A function that should give a formspec for requesting
-  spell configuration. It gets the last chosen setup as input, so that the
-  formspec can default to the previous preparation choice. You also get the
-  player name, in case you need some set up for form handling.
+prep_form(metadata, "player_name", succ_cb(metadata), err_cb("err_str") - A
+  function that shows a preparation form to a player. If the player enters
+  a valid configuration, parse it into a metadata and call succ_cb on it.
+  If there is an error, call err_cb with the error string. If you don't need
+  any configuration, you can just call succ_cb({}) without showing any form.
 
   By default, creates a form with two fields for startup and uses, with
   names "startup" and "uses". If there is existing metadata, it uses those as
-  the default value.
-
-parse_fields({fields}, "player_name") - Parses the fields of prep_form into
-  data that will be used when the spell begins casting.
-
-  It must return two values. The first value represents the type of the result,
-  and can be one of the following:
-
-  magic_spells.error - This indicates an error. The second value must be an error
-  string.
-
-  magic_spells.incomplete - This indicates the formspec needs additional input.
-  The second value can be nil or a formspec to send to the user. If it is nil,
-  nothing happens.
-
-  magic_spells.complete - This indicates that the configuration is done. The
-  second value must be a parsed metadata.
-
-  The default parser looks for fields "startup" and "uses",
-  and parses them into a table of nonnegative numbers of the same names.
+  the default value. It tries to parse these into a table of nonnegative
+  integers of the same name.
 
 prep_cost({aptitudes}, metadata) - Determines the cost of a spell. The table
   aptitudes is a map from strings to nonnegative numbers, and represents the

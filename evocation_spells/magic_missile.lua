@@ -9,14 +9,13 @@
 -- Result Data: A table containing a reference to a target object, "target",
 --   as well as the count field from the metadata, and the player, as player.
 --
--- Formspec:
---   count: A textlist allowing the choice of 1, 2, 3, 4, or 5 missiles
---   startup: A field for entering startup time
---   uses: A field for entering use count (0 for infinite)
---   prepare: A button to finish preparation.
+-- Smart Formspec:
+--   A textlist allowing the choice of 1, 2, 3, 4, or 5 missiles
+--   A field for entering startup time
+--   A field for entering use count (0 for infinite)
+--   A button to finish preparation.
 --
--- form_data: Just holds the selected count index.
-
+--   param - A table with metadata, succ_cb, err_cb
 
 
 local spell_name = "magic_missile"
@@ -29,104 +28,105 @@ local description =
 	.. "Costs are rounded up."
 
 
--- Hold selected missile count
-local form_data = {}
+local function handle_prep(count_str, startup_str, uses_str, succ_cb, err_cb)
+
+	local count = tonumber(count_str)
+
+	local startup = tonumber(statup_str)
+
+	local uses = tonumber(uses_str)
 
 
-local form_temp =
-	"size[8,6]"
-	.. "textlist[0.5,0.5;3,7;count;1 missile, 2 missiles, 3 missiles, 4 missiles, 5 missiles;%d;False]"
-	.. "field[4.5,0.5;3,2;startup;Startup;%d]"
-.. "field[4.5,2.5;3,2;uses;Uses (0 for infinite);%d]"
-	.. "button[4.5,5;2,1;prepare;Prepare]"
-
-
-local function mk_form(last_meta, p_name)
-
-	local def_count, def_startup, def_uses
-	
-	if (last_meta == nil) then
-		def_count = 1
-		def_startup = 0.5
-		def_uses = 0
-	else
-		def_count = last_meta.count or 1
-		def_startup = last_meta.startup or 0.5
-		def_uses = last_meta.uses or 0
+	if (startup == nil) then
+		err_cb("Startup not a number")
 	end
 
-	form_data[p_name] = def_count
+	if (uses == nil) then
+		err_cb("Uses not a number")
+	end
 
-	return string.format(form_temp, def_count, def_startup, def_uses)
+	if (startup < 0) then
+		err_cb("Startup is negative")
+	end
 
+	if (uses < 0) then
+		err_cb("Uses is negative")
+	end
+
+	if (uses ~= math.floor(uses)) then
+		err_cb("Uses is not an integer")
+	end
+
+	if (count == nil) then
+		err_cb("No missile count selected")
+	end
+
+		
+	-- Infinite requested
+	if (uses == 0) then
+		uses = nil
+	end
+
+	succ_cb({ count = count,
+		  startup = startup,
+		  uses = uses
+	})
 end
 
 
-local function parse(fields, p_name)
+local mm_form = smartfs.create("evocation_spells:magic_missile", function(state)
+				       
+	state:size(8,6)
 
-	if (fields["count"]) then
+	local def_count, def_startup, def_uses
 
-		local event = minetest.explode_textlist_event(fields.count)
-
-		local count = tonumber(event.index)
-
-		if (count == nil or count < 1 or count > 5) then
-			count = 1
-		end
-
-		form_data[p_name] = count
-
-		return magic_spells.incomplete
-
+	if (state.param.metadata == nil) then
+		def_count = 1
+		def_startup = 0
+		def_uses = 0
+	else
+		def_count = state.param.metadata.count
+		def_startup = state.param.metadata.startup
+		def_uses = state.param.metadata.uses
 	end
-
-	if (fields["prepare"]) then
-
-		local count = form_data[p_name]
-
-		local startup = tonumber(fields.startup)
-
-		local uses = tonumber(fields.uses)
-
-
-		if (startup == nil) then
-			return magic_spells.error, "Startup not a number"
-		end
-
-		if (uses == nil) then
-			return magic_spells.error, "Uses not a number"
-		end
-
-		if (startup < 0) then
-			return magic_spells.error, "Startup is negative"
-		end
-
-		if (uses < 0) then
-			return magic_spells.error, "Uses is negative"
-		end
-
-		if (uses ~= math.floor(uses)) then
-			return magic_spells.error, "Uses is not an integer"
-		end
-
-		if (count == nil) then
-			return magic_spells.error, "No missile count selected"
-		end
-
 		
-		-- Infinite requested
-		if (uses == 0) then
-			uses = nil
-		end
 
-		return magic_spells.complete, { count = count,
-						startup = startup,
-						uses = uses
-					      }
-	end
+	local count_box = state:listbox(0.5,0.5, 3,7, "count")
+	count_box:removeItem(1)
 
-	return magic_spells.incomplete, nil
+	count_box:addItem("1 Missile")
+	count_box:addItem("2 Missiles")
+	count_box:addItem("3 Missiles")
+	count_box:addItem("4 Missiles")
+	count_box:addItem("5 Missiles")
+
+	local startup_field = state:field(4.5,0.5, 3,2, "startup", "Startup:")
+	startup_field:setText("" .. def_startup)
+
+	local uses_field = state:field(4.5,2.5, 3,2, "uses", "Uses (0 for infinite)")
+	uses_field:setText("" .. def_uses)
+
+	local butt = state:button(4.5,5, 2,1, "prepare", "Prepare")
+
+	butt:click(function(self, state)
+
+			local count_str = count_box:getIndex()
+			local startup_str = startup_field:getText()
+			local uses_str = uses_field:getText()
+
+			handle_prep(count_str, startup_str, uses_str,
+				    state.param.succ_cb, state.param.err_cb)
+
+	end)
+end)
 	
+
+local function show_form(last_meta, p_name, succ_cb, err_cb)
+	mm_form:show(p_name,
+		     {metadata = last_meta,
+		      succ_cb = succ_cb,
+		      err_cb = err_cb
+	})
 end
 
 
@@ -285,8 +285,7 @@ end})
 magic_spells.register_spell(spell_name,
 			    { display_name = "Magic Missile",
 			      description = description,
-			      prep_form = mk_form,
-			      parse_fields = parse,
+			      prep_form = show_form,
 			      prep_cost = calculate_cost,
 			      on_begin_cast = begin_cast,
 			      on_finish_cast = cast_missile

@@ -480,306 +480,258 @@ end
 --
 -- These are the different form names:
 --
--- magic:select_prep - Selecting a spell to prepare. It contains
+-- magic_spells:select_prep - Selecting a spell to prepare. It contains
 -- a "selected" textlist, that only contains spells the user has not prepared
--- yet. Needs to have a formspec data table associated, with these fields:
---   preparable_idx - the index of the currently-preparable spells (known and
---     not yet prepared)
---   preparable - a list of preparable spells
--- It also has a button, "prepare", to go to the preparation screen.
+-- yet. Uses smartfs, and takes a a list of spell names as a param.
+--
+-- It also has a button, to go to the preparation screen.
 -- When a spell is selected, its description should appear.
 --
--- magic:prep - Submission from the preparation screen. Should just be the
--- formspec provided in the spell definition. Before shown, the spell selected
--- should be saved as formspec data, in a string.
+-- magic_spells:err_prep - Error message window. Goes back to spell preparation on
+-- submit. Its param is a table containing err, spell_name, and prep_cb.
 --
--- magic:err_prep - Error message window. Goes back to spell preparation on
--- submit, so should save spell name in formspec data.
---
--- magic:conf_prep - Used after confirmation of spell preparation. Before showing,
--- should save a table with the following fields:
+-- magic_spells:conf_prep - Used after confirmation of spell preparation. Receives
+-- a table param with the following fields:
 --   spell_name - the spell used
 --   metadata - the metadata entered
 --   cost - the preparation slots used
+--   prep_cb - How to return to the preparation dialog.
 
 
-local formspec_data = {}
-
-
-local function get_formspec_data(p_name, formname)
-
-	if (formspec_data[p_name] == nil or formspec_data[p_name][formname] == nil) then
-		return nil
-	end
-
-	return copy_shal(formspec_data[p_name][formname])
-end
-
-
-local function set_formspec_data(p_name, formname, data)
-	if (formspec_data[p_name] == nil) then
-		if (minetest.get_player_by_name(p_name) ~= nil) then
-			formspec_data[p_name] = {}
-		else
-			return
-		end
-	end
-
-	formspec_data[p_name][formname] = copy_shal(data)
-end
-
-
-minetest.register_on_leaveplayer(function(player)
-		formspec_data[player:get_player_name()] = nil
-end)
-
-
-local selection_temp =
-	"size[8,8]label[0.5,0;Select a spell to prepare]"
-	.. "textlist[0.5,0.5;3,6;selected;%s]"
-	.. "button[3.5,7;2,1;prepare;Prepare]"
-	.. "textarea[4.5,0.5;3.5,6;desc;Description;%s]"
+local select_form, err_form, conf_form
 
 
 local function show_select_prep(p_name)
-
-	local preparable_list = {}
-
-	local preparable_display_list = {}
-
-	local caster_data = get_caster_data(p_name)
-
-	local old_fs_data = get_formspec_data(p_name, "magic:select_prep")
-
-	if (caster_data == nil) then
-		minetest.log("error", "No caster data for " .. p_name)
-		return
-	end
-
-	local idx = (old_fs_data and old_fs_data.preparable_idx) or 1
-
-	for s_name, garbage in pairs(caster_data.known_spells) do
-
-		if(caster_data.prepared_spells[s_name] == nil and spells[s_name] ~= nil) then
-			table.insert(preparable_list, s_name)
-			table.insert(preparable_display_list, spells[s_name].display_name)
-		end
-	end
-
-	local text_list = table.concat(preparable_display_list, ",")
-
-	local selected_s_name = preparable_list[idx]
 	
-	local selected_spell = spells[selected_s_name]
+	local c_data = get_caster_data(p_name)
 
-	local description
+	if (c_data == nil) then return end
 
-	if (selected_spell == nil) then
-		description = ""
-	else
-		description = minetest.formspec_escape(selected_spell.description)
+	local preparable = {}
+
+	for s_name, _ in pairs(c_data.known_spells) do
+
+		table.insert(preparable, s_name)
 	end
 
-	local formspec = string.format(selection_temp, text_list, description)
-
-	set_formspec_data(p_name, "magic:select_prep",
-			  { preparable = preparable_list, preparable_idx = idx })
-
-	minetest.show_formspec(p_name, "magic:select_prep", formspec)
+	select_form:show(p_name, preparable)
 end
-	
 
-local function show_prep(p_name, s_name)
 
-	local spell = spells[s_name]
+local function show_prep(p_name, s_name, prep_cb)
 
 	local c_data = get_caster_data(p_name)
 
-	if (spell == nil) then
-		minetest.log("error", "Unknown Spell: " .. s_name)
+	if (c_data == nil) then return end
+
+	local last_meta = c_data.last_preps[s_name]
+
+	local function succ_cb(meta)
+		handle_prep_succ(p_name, s_name, meta, prep_cb)
+	end
+
+	local function err_cb(err)
+		handle_prep_err(p_name, s_name, err, prep_cb)
+	end
+
+	prep_cb(last_meta, p_name, succ_cb, err_cb)
+end
+
+
+local function show_conf(p_name, s_name, meta, cost, prep_cb)
+
+	conf_form:show(p_name,
+		       { spell_name = s_name,
+			 metadata = meta,
+			 cost = cost,
+			 prep_cb = prep_cb
+	})
+	
+end
+
+
+local function handle_prep_succ(p_name, s_name, meta, prep_cb)
+
+	local c_data = get_caster_data(p_name)
+	
+	local spell = spells[s_name]
+
+	if (spell == nil or c_data == nil) then return end
+
+	local cost = math.ceil(spell.prep_cost(c_data.aptitudes, meta))
+
+	if (cost > c_data.prep_points) then
+		local err = "Not enough slots.\n"
+			.. "Need: " .. cost
+			.. " Have: " .. c_data.prep_points
+
+		handle_prep_err(p_name, s_name, err, prep_cb)
+	else
+		show_conf(p_name, s_name, meta, cost, prep_cb)
+	end
+
+end
+
+
+local function handle_prep_err(p_name, s_name, err, prep_cb)
+
+	err_form:show(p_name,
+		      { err = err,
+			spell_name = s_name,
+			prep_cb = prep_cb
+	})
+end
+
+
+local function handle_prep_conf(p_name, s_name, meta, cost)
+
+	local c_data = get_caster_data(p_name)
+
+	if (c_data == nil) then return end
+
+	if (not c_data.known_spells[s_name]) then
+		minetest.chat_send_player(p_name, "You don't know this spell.")
 		return
 	end
 
-	if (c_data == nil) then
-		minetest.log("error", "Unknown Caster: " .. p_name)
+	if (c_data.prep_points < cost) then
+		minetest.chat_send_player(p_name, "Not enough slots.")
 		return
 	end
 
-	local formspec = spell.prep_form(c_data.last_preps[s_name], p_name)
+	prepare_spell(p_name, s_name, meta, cost)
 
-	set_formspec_data(p_name, "magic:prep", s_name)
+	show_select_prep(p_name)
 
-	minetest.show_formspec(p_name, "magic:prep", formspec)
 end
 
 
-local insufficient_temp =
-	"size[4,4]label[1,0;Error]label[1,1;Insufficient points]"
-	.. "label[1,2;Have %d, need %d]button[1,3;2,1;back;Back]"
+select_form = smartfs.create("magic_spells:select_prep", function(state)
+
+		       local spell_list = state.param
+
+		       state.selected_idx = nil
+
+		       state:size(8,8)
+		       state:label(0.5,0,"title","Select a spell to prepare")
+		       local spells_box = state:listbox(0.5,0.5,3,6,"selected")
+
+		       spells_box:removeItem(1)
+
+		       for i, s_name in ipairs(spell_list) do
+
+			       local s_data = spells[s_name]
+
+			       local disp
+
+			       if (s_data == nil) then
+				       disp = s_name
+			       else
+				       disp = s_data.display_name
+			       end
+
+			       spells_box:addItem(disp)
+		       end
+
+		       local prep_button = state:button(3.5,7,2,1,"prepare","Prepare")
+		       local desc_box =
+			       state:textarea(4.5, 0.5, 3.5, 6, "desc", "Description")
+
+		       desc_box:setText("")
+
+		       spells_box:onClick(function(self, state, idx)
+
+				       state.selected_idx = tonumber(idx)
+				       local s_name = spell_list[tonumber(state.selected_idx)]
+
+				       local s_def = s_name and spells[s_name]
+
+				       local s_desc = (s_def and s_def.description)
+					       or "Error: Spell not found."
+
+				       desc_box:setText(s_desc)
+
+				       state:show()
+		       end)
+
+		       prep_button:click(function(self, state)
+
+				       if (state.selected_idx == nil) then
+					       return
+				       end
+
+				       local s_name = spell_list[state.selected_idx]
+
+				       local s_def = s_name and spells[s_name]
+
+				       if (s_def == nil) then
+					       return
+				       end
+
+				       local p_name = state.player
+
+				       show_prep(p_name, s_name, s_def.prep_form)
+		       end)
+
+		       
+end)
 
 
-local function show_insufficient_prep(p_name, s_name, req_prep, cur_prep)
+err_form = smartfs.create("magic_spells:err_prep", function(state)
 
-	local formspec = string.format(insufficient_temp, cur_prep, req_prep)
+		       state:size(4,3)
+		       state:label(0.5, 0.5, "title", "Error")
+		       state:label(0.5, 1.5, "err", state.param.err)
+		       local butt = state:button(1,2, 2,1, "back", "Back")
 
-	set_formspec_data(p_name, "magic:err_prep", s_name)
+		       butt:click(function(self, state)
 
-	minetest.show_formspec(p_name, "magic:err_prep", formspec)
-end
+				       local p_name = state.player
+				       local s_name = state.param.spell_name
 
-
-local error_temp =
-	"size[4,3]label[1,0;Error]label[1,1;%s]"
-	.. "button[1,2;2,1;back;Back]"
-
-
-local function show_error_prep(p_name, s_name, error_str)
-
-	local formspec = string.format(error_temp, error_str)
-
-	set_formspec_data(p_name, "magic:err_prep", s_name)
-	
-	minetest.show_formspec(p_name, "magic:err_prep", formspec)
-end
+				       show_prep(p_name, s_name, state.param.prep_cb)
+		       end)
+end)
 
 
-local conf_temp =
-	"size[5,3]label[0.2,0;This will cost %d of %d preparation slots. \nAre you sure?]"
-	.. "label[1,1;You can hit ESC to go back.]button[1,2;2,1;confirm;Confirm]"
+local slot_cost_temp =
+	"This will cost %d of %d preparation slots.\n Are you sure?"
 
 
-local function show_conf_prep(p_name, s_name, metadata, req_prep, cur_prep)
+conf_form = smartfs.create("magic_spells:conf_prep", function(state)
 
-	local formspec = string.format(conf_temp, req_prep, cur_prep)
+				   local p_name = state.param.player
+				   local s_name = state.param.spell_name
+				   local meta = state.param.metadata
+				   local cost = state.param.cost
+				   local prep_cb = state.param.prep_cb
 
-	local data =
-		{ spell_name = s_name,
-		  metadata = metadata,
-		  cost = req_prep
-		}
+				   local c_data = get_caster_data(p_name)
 
-	set_formspec_data(p_name, "magic:conf_prep", data)
-	
-	minetest.show_formspec(p_name, "magic:conf_prep", formspec)
-end
+				   if (c_data == nil) then return end
 
+				   local av_points = c_data.prep_points
 
-local function handle_fields(player, formname, fields)
+				   local cost_text =
+					   string.format(slot_cost_temp, cost, av_points)
 
-	local p_name = player:get_player_name()
+				   state:size(5,3)
+				   state:label(0.2,0, "cost", cost_text)
+				   
+				   local yes = state:button(0.5,2, 1.5,1, "yes", "Yes")
+				   
+				   local no = state:button(3.5,2, 1.5,1, "no", "No", true)
 
-	local caster_data = get_caster_data(p_name)
+				   yes:click(function(self, state)
 
-	if (formname == "magic:select_prep") then
+						   handle_prep_conf(p_name, s_name, meta, cost)
+				   end)
 
-		local select_data =
-			get_formspec_data(p_name, "magic:select_prep")
+				   no:click(function(self, state)
 
-		if (fields["prepare"]) then
-			local s_name = select_data.preparable[select_data.preparable_idx]
-
-			if (s_name == nil) then
-				show_select_prep(p_name)
-				return true
-			end
-			
-			show_prep(p_name,
-				  select_data.preparable[select_data.preparable_idx])
-			return true
-		end
-
-		if (fields["selected"]) then
-			local event = minetest.explode_textlist_event(fields.selected)
-
-			select_data.preparable_idx = tonumber(event.index)
-
-			set_formspec_data(p_name, "magic:select_prep", select_data)
-
-			show_select_prep(p_name)
-			return true
-		end
-	end
-
-	if (formname == "magic:prep") then
-
-		if (fields["quit"]) then
-			show_select_prep(p_name)
-			return true
-		end
-
-		local s_name = get_formspec_data(p_name, "magic:prep")
-
-		local spell = spells[s_name]
-
-		if (spell == nil) then
-			minetest.log("error", "Unknown spell " .. s_name)
-			return true
-		end
-
-		local res_type, result = spell.parse_fields(fields, p_name)
-
-		if (res_type == magic_spells.error) then
-			show_error_prep(p_name, s_name, result)
-			return true
-		end
-
-		if (res_type == magic_spells.incomplete) then
-
-			if (result ~= nil) then
-				minetest.show_formspec(p_name, "magic:prep", result)
-			end
-			
-			return true
-		end
-
-		local cost = spell.prep_cost(caster_data.aptitudes, result)
-
-		if (cost > caster_data.prep_points) then
-			show_insufficient_prep(p_name, s_name, cost, caster_data.prep_points)
-			return true
-		else
-			show_conf_prep(p_name, s_name, result, cost, caster_data.prep_points)
-			return true
-		end
-	end
-
-	if (formname == "magic:err_prep") then
-
-		local s_name = get_formspec_data(p_name, "magic:err_prep")
-
-		show_prep(p_name, s_name)
-		return true
-	end
-
-	if (formname == "magic:conf_prep") then		
-
-		local data = get_formspec_data(p_name, "magic:conf_prep")
-
-		local s_name = data.spell_name
-
-		if (fields["quit"]) then
-			show_prep(p_name, s_name)
-			return true
-		end
-
-		if (not caster_data.known_spells[s_name]) then
-			minetest.chat_send_player(p_name, "You don't know this spell.")
-			return true
-		end
-
-		if (caster_data.prep_points < data.cost) then
-			minetest.chat_send_player(p_name, "Not enough slots.")
-			return true
-		end
-
-		prepare_spell(p_name, s_name, data.metadata, data.cost)
-
-		show_select_prep(p_name)
-
-		return true
-
-	end
-end
+						   show_prep(p_name, s_name, prep_cb)
+				   end)
+end)
 
 
 player_systems.register_player_system("casters",
@@ -806,9 +758,6 @@ minetest.register_on_dieplayer(function(p)
 		cancel_spell(p_name)
 end)
 
-
-minetest.register_on_player_receive_fields(handle_fields)
-	
 
 magic_spells.register_spell = function(name, spell)
 	

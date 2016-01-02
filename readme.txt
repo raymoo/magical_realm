@@ -1,6 +1,8 @@
 Magical_Realm
 =============
-This is a modpack intended to include magical things.
+This is a modpack intended to include magical things. 
+
+Mods included from other authors: smartfs
 
 
 magic_spells
