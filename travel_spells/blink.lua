@@ -4,6 +4,9 @@
 --
 -- Teleports the user to a random nearby location
 --
+-- To make a node safe to blink onto, add it to the group:blink_safe.
+-- If you are me, you can also add them to the safe_nodes list.
+--
 -- Metadata: A table with one numerical field, uses
 --
 -- Result Data: Reference to the player
