@@ -80,7 +80,7 @@ local function handle_prep(count_str, startup_str, uses_str, succ_cb, err_cb)
 end
 
 
-local mm_form = smartfs.create("evocation_spells:magic_missile", function(state)
+local mm_form = smartfs.create("combat_spells:magic_missile", function(state)
 				       
 	state:size(8,6)
 
@@ -209,7 +209,7 @@ local function cast_missile(result)
 		local mis_pos = vector.add(p_pos, {x=0, y=1.4, z=0})
 
 		local missile =
-			minetest.add_entity(mis_pos, "evocation_spells:magic_missile")
+			minetest.add_entity(mis_pos, "combat_spells:magic_missile")
 
 		if (missile ~= nil) then
 
@@ -230,7 +230,7 @@ end
 
 
 -- Target needs to be set when spawned.
-minetest.register_entity("evocation_spells:magic_missile",
+minetest.register_entity("combat_spells:magic_missile",
 			 { target = nil,
 			   lifetime = 10,
 			   hp_max = 1,
@@ -239,7 +239,7 @@ minetest.register_entity("evocation_spells:magic_missile",
 			   collisionbox = { -0.1, -0.1, -0.1, 0.1, 0.1, 0.1 },
 			   visual = "sprite",
 			   visual_size = { x = 0.5, y = 0.5 },
-			   textures = {"evocation_spells_magic_missile.png"},
+			   textures = {"combat_spells_magic_missile.png"},
 			   is_visible = true,
 
 			   on_activate = function(self, staticdata, dtime_s)
