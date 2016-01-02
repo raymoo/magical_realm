@@ -41,13 +41,13 @@ local function show_select_learn(p_name)
 		  text_list = text_list
 		}
 
-	minetest.after(0, minetest.show_formspec, p_name, formname, formspec)
+	minetest.show_formspec(p_name, formname, formspec)
 end
 
 
 local function handle_fields(player, formname, fields)
 
-	if (formname ~= "magic_spells:creative_book") then return false end
+	if (formname ~= "magic_spells:learn_spells") then return false end
 
 	local p_name = player:get_player_name()
 
@@ -70,8 +70,7 @@ local function handle_fields(player, formname, fields)
 		else
 			local s_name = data.spell_names[data.idx]
 			
-			description =
-				selected_desc .. "\n\nEnter in creative wand: " .. s_name
+			description = selected_desc
 		end
 
 		local formspec = string.format(learn_template, data.text_list, description)
@@ -146,7 +145,7 @@ main_form = smartfs.create("magic_spells:creative_spellbook",
 	end)
 
 	learn_butt:click(function(self, state)
-			show_select_learn(p_name)
+			minetest.after(0,show_select_learn, p_name)
 	end)
 end)
 
