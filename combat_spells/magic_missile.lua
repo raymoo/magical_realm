@@ -207,6 +207,7 @@ local function cast_missile(result)
 			local z = math.random(-3, 3)
 
 			ent.target = target
+			ent.magical.owner = player
 
 			missile:setvelocity({x=x, y=y, z=z})
 		end
@@ -220,6 +221,15 @@ end
 minetest.register_entity("combat_spells:magic_missile",
 			 { target = nil,
 			   lifetime = 10,
+
+			   magical =
+				   { power = 2,
+				     reflect = function(self, new_owner)
+					     
+					     self.target = self.magical.owner
+					     self.magical.owner = new_owner
+				   end},
+			   
 			   hp_max = 1,
 			   physical = true,
 			   collide_with_objects = false,
