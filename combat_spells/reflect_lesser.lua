@@ -30,7 +30,7 @@
 --
 -- param - A table with last_meta, succ_cb, err_cb
 
-local reflect_radius = 5
+local reflect_radius = 10
 
 local max_power = 2
 
