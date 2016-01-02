@@ -30,7 +30,7 @@
 --
 -- param - A table with last_meta, succ_cb, err_cb
 
-local reflect_radius = 4
+local reflect_radius = 5
 
 local max_power = 2
 
@@ -140,7 +140,9 @@ local function reflect_spells(player)
 
 	if (p_pos == nil) then return end
 
-	local targets = minetest.get_objects_inside_radius(p_pos, reflect_radius)
+	local chest_pos = vector.add(p_pos, {x=0, y=1.4, z=0})
+
+	local targets = minetest.get_objects_inside_radius(chest_pos, reflect_radius)
 
 	for i, target in ipairs(targets) do
 
