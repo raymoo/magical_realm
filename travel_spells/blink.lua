@@ -161,7 +161,7 @@ end
 magic_spells.register_spell(spell_name,
 			    { display_name = disp_name,
 			      description = description,
-			      prep_form = show_from,
+			      prep_form = show_form,
 			      prep_cost = calculate_cost,
 			      on_begin_cast = begin_cast,
 			      on_finish_cast = blink
