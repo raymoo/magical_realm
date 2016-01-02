@@ -16,13 +16,14 @@ the player name will be "singleplayer". Also, give yourself a
 magic_spells:creative_spellbook. You can also find these items in the creative
 menu.
 
-To learn a spell, left-click with the spellbook, choose a spell, and hit "Learn".
-To prepare a spell, right-click with the spellbook, and choose a spell through there.
+To learn a spell, click with the spellbook, click prepare,choose a spell,
+and hit "Learn".
+To prepare a spell, click with the spellbook, and choose a spell from the "Prepare" menu.
 
 To use the wand, first select a spell by right-clicking. Then you can cast the spell
 by left-clicking.
 
-To remove all your prepared spells, go to the spell-learning menu and hit
+To remove all your prepared spells, go to the spellbook menu and hit
 "Unprepare".
 
 
@@ -39,3 +40,13 @@ summon_tnt (Summon Lit TNT) - Places a lit tnt node where you are looking when y
 magic_missile (Magic Missile) - Shoots homing force bolts.
 
 reflect_lesser (Lesser Reflect) - Reflects weak magic projectiles.
+
+
+travel_spells
+-------------
+
+Spells that help transport the player
+
+Current Spells
+
+blink (Blink) - Teleport to a random nearby location
