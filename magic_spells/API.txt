@@ -150,6 +150,11 @@ Gets the spell a player is currently casting. If the player is not casting a
 spell, it returns nil.
 
 
+magic_spells.set_can_cast("player_name", c_data)
+
+Changes whether the player can cast spells.
+
+
 Misc
 -----
 

@@ -185,6 +185,8 @@ local function initialize_caster()
 	-- last thing they chose during preparation.
 	caster_data.last_preps = {}
 
+	caster_data.can_cast = true
+
 	return caster_data
 end
 
@@ -412,7 +414,7 @@ local function cast_spell(player, pointed_thing, s_name)
 	local prep_meta = get_prepared_meta(p_name, s_name)
 
 	if (prep_meta == nil) then
-		return "The spell has not been prepared."
+		return "This spell has not been prepared."
 	end
 
 	if (c_data == nil) then
@@ -420,7 +422,11 @@ local function cast_spell(player, pointed_thing, s_name)
 	end
 
 	if (c_data.current_spell ~= nil) then
-		return "Player is already casting something"
+		return "You are already casting something."
+	end
+
+	if (not c_data.can_cast) then
+		return "You cannot cast right now."
 	end
 
 	local new_meta = force_cast_spell(player, pointed_thing, s_name, prep_meta)
@@ -836,6 +842,18 @@ end
 
 
 magic_spells.registered_spells = spells
+
+
+magic_spells.set_can_cast = function (p_name, can_cast)
+
+	local c_data = get_caster_data(p_name)
+
+	if (c_data == nil) then return end
+
+	c_data.can_cast = can_cast
+
+	set_caster_data(p_name, c_data)
+end
 
 
 -- Privileges / Commands
