@@ -53,16 +53,14 @@ display_name - The name displayed to players
 description - A description of the spell's mechanics, and possibly some
   flavortext
 
-prep_form(metadata, "player_name", succ_cb(metadata), err_cb("err_str") - A
+prep_form(metadata, "player_name", succ_cb(metadata), err_cb("err_str")) - A
   function that shows a preparation form to a player. If the player enters
   a valid configuration, parse it into a metadata and call succ_cb on it.
   If there is an error, call err_cb with the error string. If you don't need
   any configuration, you can just call succ_cb({}) without showing any form.
 
-  By default, creates a form with two fields for startup and uses, with
-  names "startup" and "uses". If there is existing metadata, it uses those as
-  the default value. It tries to parse these into a table of nonnegative
-  integers of the same name.
+  If nil, creates no form, and simply calls succ_cb with an empty table
+  for metadata.
 
 prep_cost({aptitudes}, metadata) - Determines the cost of a spell. The table
   aptitudes is a map from strings to nonnegative numbers, and represents the
@@ -83,11 +81,8 @@ on_begin_cast(metadata, player, pointed_thing, func(startup, result_data)) -
   it runs out of uses. Otherwise, the function should return a new metadata, which
   will replace the old one. To keep the old metadata, you can return it unchanged.
 
-  By default, it takes as metadata with nonnegative integer values with keys
-  "startup" and "uses". "uses" may alternatively be nil, which indicates infinite
-  use. After making sure there are enough uses left, it calls the callback with the
-  given startup, and passing the player's name and pointed_thing in a table with
-  keys "player_name" and "pointed_thing" respectively.
+  By default, immediately calls the callback with 0 startup, passing in the player's
+  name and pointed_thing with keys "player_name" and "pointed_thing" respectively.
 
 on_finish_cast(result_data) - This carries out the spells effect. It receives
   the result_data passed into the callback by on_begin_cast.

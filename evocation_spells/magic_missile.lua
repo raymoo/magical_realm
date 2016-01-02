@@ -32,33 +32,39 @@ local function handle_prep(count_str, startup_str, uses_str, succ_cb, err_cb)
 
 	local count = tonumber(count_str)
 
-	local startup = tonumber(statup_str)
+	local startup = tonumber(startup_str)
 
 	local uses = tonumber(uses_str)
 
 
 	if (startup == nil) then
 		err_cb("Startup not a number")
+		return
 	end
 
 	if (uses == nil) then
 		err_cb("Uses not a number")
+		return
 	end
 
 	if (startup < 0) then
 		err_cb("Startup is negative")
+		return
 	end
 
 	if (uses < 0) then
 		err_cb("Uses is negative")
+		return
 	end
 
 	if (uses ~= math.floor(uses)) then
 		err_cb("Uses is not an integer")
+		return
 	end
 
 	if (count == nil) then
 		err_cb("No missile count selected")
+		return
 	end
 
 		
@@ -87,7 +93,7 @@ local mm_form = smartfs.create("evocation_spells:magic_missile", function(state)
 	else
 		def_count = state.param.metadata.count
 		def_startup = state.param.metadata.startup
-		def_uses = state.param.metadata.uses
+		def_uses = state.param.metadata.uses or 0
 	end
 		
 
@@ -108,9 +114,14 @@ local mm_form = smartfs.create("evocation_spells:magic_missile", function(state)
 
 	local butt = state:button(4.5,5, 2,1, "prepare", "Prepare")
 
+	count_box:onClick(function(self, state, idx)
+
+			state.count_idx = tonumber(idx)
+	end)
+
 	butt:click(function(self, state)
 
-			local count_str = count_box:getIndex()
+			local count_str = state.count_idx or ""
 			local startup_str = startup_field:getText()
 			local uses_str = uses_field:getText()
 

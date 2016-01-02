@@ -216,80 +216,14 @@ local function set_prepared_meta(player_name, spell_name, prep_meta)
 end
 
 
-local def_fields_temp =
-	"size[4, 5]"
-	.. "field[1,1;3,1;startup;Startup Time;%d]"
-.. "field[1,3;3,1;uses;Uses (0 for infinite);%d]"
-	.. "button[1,4;2,1;prepare;Prepare]"
-
-
-local function def_fields(last_meta)
-
-	local last_startup = (last_meta and last_meta.startup) or 0
-	local last_uses = (last_meta and last_meta.uses) or 0
-	
-	return string.format(def_fields_temp, last_startup, last_uses)
-end
-
-
-local function def_parse(fields)
-
-	local startup = tonumber(fields.startup)
-
-	if (startup == nil) then
-		return magic_spells.error, "Non-number startup"
-	end
-
-	if (startup < 0) then
-		return magic_spells.error, "Negative startup time"
-	end
-
-	local uses = tonumber(fields.uses)
-
-	if (uses == nil) then
-		return magic_spells.error, "Non-number uses"
-	end
-
-	if (uses < 0) then
-		return magic_spells.error, "Negative uses"
-	end
-
-	if (uses == 0) then
-		uses = nil
-	end
-
-	return magic_spells.complete, { startup = startup, uses = uses }
-
-end
-
-
 local function def_begin_cast(metadata, player, pointed_thing, callback)
 
-	local p_name = player:get_player_name()
-
-	if (metadata.uses == 0) then
-		-- This shouldn't happen, but just in case
-		minetest.chat_send_player(p_name, "You have no more uses.")
-		return nil
-	end
-	
-	if (metadata.uses ~= nil) then
-		metadata.uses = metadata.uses - 1
-		local use_string = "You now have " .. metadata.uses .. " uses."
-	minetest.chat_send_player(p_name, use_string)
-	end
-
-	
-	callback(metadata.startup,
-		 { player_name = p_name, pointed_thing = pointed_thing
-		 }, player, pointed_thing)
-
-	if (metadata.uses == 0) then
-		return nil
-	else
-		return metadata
-	end
+	callback(0,
+		 { player_name = player,
+		   pointed_thing = pointed_thing
+	})
 end
+
 
 
 local function copy_shal(orig)
@@ -501,6 +435,15 @@ end
 local select_form, err_form, conf_form
 
 
+-- smartfs forms seem to break if you show a form from a different form's callbacks.
+local function delay_show(form, p_name, param)
+
+	minetest.after(0, function()
+			       form:show(p_name, param)
+	end)
+end
+
+
 local function show_select_prep(p_name)
 	
 	local c_data = get_caster_data(p_name)
@@ -511,40 +454,32 @@ local function show_select_prep(p_name)
 
 	for s_name, _ in pairs(c_data.known_spells) do
 
-		table.insert(preparable, s_name)
+		if (not c_data.prepared_spells[s_name]) then
+			table.insert(preparable, s_name)
+		end
 	end
 
-	select_form:show(p_name, preparable)
+	delay_show(select_form, p_name, preparable)
 end
 
 
-local function show_prep(p_name, s_name, prep_cb)
+local function handle_prep_err(p_name, s_name, err, prep_cb)
 
-	local c_data = get_caster_data(p_name)
-
-	if (c_data == nil) then return end
-
-	local last_meta = c_data.last_preps[s_name]
-
-	local function succ_cb(meta)
-		handle_prep_succ(p_name, s_name, meta, prep_cb)
-	end
-
-	local function err_cb(err)
-		handle_prep_err(p_name, s_name, err, prep_cb)
-	end
-
-	prep_cb(last_meta, p_name, succ_cb, err_cb)
+	delay_show(err_form, p_name,
+		   { err = err,
+		     spell_name = s_name,
+		     prep_cb = prep_cb
+	})
 end
 
 
 local function show_conf(p_name, s_name, meta, cost, prep_cb)
 
-	conf_form:show(p_name,
-		       { spell_name = s_name,
-			 metadata = meta,
-			 cost = cost,
-			 prep_cb = prep_cb
+	delay_show(conf_form, p_name,
+		   { spell_name = s_name,
+		     metadata = meta,
+		     cost = cost,
+		     prep_cb = prep_cb
 	})
 	
 end
@@ -573,13 +508,27 @@ local function handle_prep_succ(p_name, s_name, meta, prep_cb)
 end
 
 
-local function handle_prep_err(p_name, s_name, err, prep_cb)
+local function show_prep(p_name, s_name, prep_cb)
 
-	err_form:show(p_name,
-		      { err = err,
-			spell_name = s_name,
-			prep_cb = prep_cb
-	})
+	local c_data = get_caster_data(p_name)
+
+	if (c_data == nil) then return end
+
+	local last_meta = c_data.last_preps[s_name]
+
+	local function succ_cb(meta)
+		handle_prep_succ(p_name, s_name, meta, prep_cb)
+	end
+
+	local function err_cb(err)
+		handle_prep_err(p_name, s_name, err, prep_cb)
+	end
+
+	if (prep_cb == nil) then
+		handle_prep_succ(p_name, s_name, {}, prep_cb)
+	else
+		minetest.after(0, prep_cb, last_meta, p_name, succ_cb, err_cb)
+	end
 end
 
 
@@ -679,9 +628,9 @@ end)
 
 err_form = smartfs.create("magic_spells:err_prep", function(state)
 
-		       state:size(4,3)
+		       state:size(5,3)
 		       state:label(0.5, 0.5, "title", "Error")
-		       state:label(0.5, 1.5, "err", state.param.err)
+		       state:label(0.5, 1, "err", state.param.err)
 		       local butt = state:button(1,2, 2,1, "back", "Back")
 
 		       butt:click(function(self, state)
@@ -700,7 +649,7 @@ local slot_cost_temp =
 
 conf_form = smartfs.create("magic_spells:conf_prep", function(state)
 
-				   local p_name = state.param.player
+				   local p_name = state.player
 				   local s_name = state.param.spell_name
 				   local meta = state.param.metadata
 				   local cost = state.param.cost
@@ -720,10 +669,9 @@ conf_form = smartfs.create("magic_spells:conf_prep", function(state)
 				   
 				   local yes = state:button(0.5,2, 1.5,1, "yes", "Yes")
 				   
-				   local no = state:button(3.5,2, 1.5,1, "no", "No", true)
+				   local no = state:button(3.5,2, 1.5,1, "no", "No")
 
 				   yes:click(function(self, state)
-
 						   handle_prep_conf(p_name, s_name, meta, cost)
 				   end)
 
@@ -767,8 +715,6 @@ magic_spells.register_spell = function(name, spell)
 
 	local spell_def = copy_shal(spell)
 
-	spell_def.prep_form = spell_def.prep_form or def_fields
-	spell_def.parse_fields = spell_def.parse_fields or def_parse
 	spell_def.on_begin_cast = spell_def.on_begin_cast or def_begin_cast
 
 	spells[name] = spell_def
