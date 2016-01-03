@@ -410,7 +410,11 @@ local function force_cast_spell(player, pointed_thing, s_name, meta)
 	end
 
 	-- Spellcasting new meta
-	return spell.on_begin_cast(meta, player, pointed_thing, callback)
+	local res = spell.on_begin_cast(meta, player, pointed_thing, callback)
+
+	update_HUD(p_name)
+
+	return res
 end
 
 
@@ -870,39 +874,6 @@ end
 -- Privileges / Commands
 
 
--- Determines whether the player can prepare using /prepare
-minetest.register_privilege("prepare",
-			    { description = "Player can prepare spells with /prepare",
-			      give_to_singleplayer = false
-})
-
-
-minetest.register_chatcommand("prepare",
-			      { description = "Prepare spells",
-				privs = { prepare = true },
-				func = function(name,param)
-					magic_spells.prepare_spells(name)
-					return true
-				end
-})
-
-
-minetest.register_chatcommand("unprepare",
-			      { description = "Resets preparation",
-				privs = { prepare = true},
-				func = function(name, param)
-
-					local err = magic_spells.reset_preparation(name)
-
-					if (err ~= nil) then
-						return false, err
-					else
-						return true
-					end
-				end
-})
-
-
 -- Whether you can give spells out like candy.
 minetest.register_privilege("givespell",
 			    { description = "Grant spells using /givespell",
@@ -948,28 +919,6 @@ minetest.register_chatcommand("givespell",
 				func = givespell_func
 })
 				
-
-minetest.register_privilege("cast",
-			    { description = "Cast using /cast",
-			      give_to_singleplayer = false
-})
-
-
-minetest.register_chatcommand("cast",
-			      { params = "<spell>",
-				description = "Cast a spell, pointing at nothing",
-				privs = { cast = true },
-				func = function(name, param)
-
-					local player = minetest.get_player_by_name(name)
-
-					if (player == nil) then return false, "Bad player" end
-
-					local err = cast_spell(player, nil, trim(param))
-
-					return (err == nil), err
-end})
-
 
 local modpath = minetest.get_modpath(minetest.get_current_modname()) .. "/"
 
