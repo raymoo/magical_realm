@@ -51,6 +51,6 @@ Current Spells
 
 blink (Blink) - Teleport to a random nearby location
 
-ethreal_jaunt (Ethreal Jaunt) - Makes the player invisible and immaterial, so
+ethereal_jaunt (Ethereal Jaunt) - Makes the player invisible and immaterial, so
 they can fly and phase through walls. Kills the player if they are inside solid
 material when the rematerialize.
