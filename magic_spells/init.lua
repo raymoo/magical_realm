@@ -66,7 +66,7 @@ local function update_HUD(player_name)
 
 		local s_name = cur_spell.def.display_name
 
-		local disp_str = string.format("Casting %s: %.1f seconds left", s_name, rem_time)
+		local disp_str = string.format("Casting %s: %.0f seconds left", s_name, rem_time)
 
 		player:hud_change(hud, "text", disp_str)
 	end
@@ -102,7 +102,18 @@ end
 
 local log_finish_temp = "[magic_spells] %s finishes casting %s at %s"
 
+
+local elapsed_hud = 1
+
+
 local function caster_step(dtime)
+
+	if (elapsed_hud < 1) then
+		elapsed_hud = elapsed_hud + dtime
+		return
+	end
+
+	elapsed_hud = 0
 
 	local active_casters = player_systems.active_states("casters")
 
@@ -114,7 +125,7 @@ local function caster_step(dtime)
 
 			local rem_time = cur_spell.remaining_time
 
-			local new_rem = rem_time - dtime
+			local new_rem = rem_time - 1
 
 			
 			if (new_rem > 0) then
