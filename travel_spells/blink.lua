@@ -17,6 +17,8 @@
 --
 --   param - A table with last_meta, succ_cb, err_cb
 
+local smoke_texture = "magic_particles_smoke.png^[mask:travel_spells_blue.png"
+
 local safe_nodes =
 	{ "group:soil",
 	  "group:tree",
@@ -135,6 +137,24 @@ local function begin_cast(meta, player, pointed_thing, callback)
 end
 
 
+local function make_puff(pos)
+
+	minetest.add_particlespawner(
+		{ amount = 10,
+		  time = 0.2,
+		  minpos = pos,
+		  maxpos = pos,
+		  minvel = {x=-2, y=-2, z=-2},
+		  maxvel = {x=2, y=2, z=2},
+		  minexptime = 2,
+		  maxexptime = 4,
+		  minsize = 5,
+		  maxsize = 8,
+		  texture = smoke_texture,
+	})
+end
+
+
 local function blink(player)
 
 	local p_pos = player:getpos()
@@ -154,8 +174,11 @@ local function blink(player)
 		return
 	end
 
-	
 	local target_pos = vector.add(chosen, {x=0, y=1, z=0})
+
+	make_puff(vector.add(p_pos, {x=0, y=1, z=0}))
+
+	make_puff(vector.add(target_pos, {x=0, y=1, z=0}))
 	
 	player:moveto(target_pos, false)
 end
