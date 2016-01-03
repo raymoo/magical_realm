@@ -4,15 +4,12 @@ local wand_range = tonumber(minetest.setting_get("magic_creative_wand_range")) o
 
 local texture = "default_mese_crystal_fragment.png^default_stick.png"
 
-local selected_spells = {}
-
 local stick_form = smartfs.create("magic_spells:creative_stick", function(state)
 
 	local p_name = state.player
-	local prepareds = state.param
+	local prepareds = state.param.prepareds
+	local current_s_name = state.param.selected
 	local displays = {}
-
-	local current_s_name = selected_spells[p_name]
 
 	local current_displayed
 
@@ -54,7 +51,20 @@ local stick_form = smartfs.create("magic_spells:creative_stick", function(state)
 
 			local spell = magic_spells.registered_spells[current_s_name]
 
-			selected_spells[p_name] = current_s_name
+			local player = minetest.get_player_by_name(state.player)
+
+			if (player == nil) then return end
+
+			local stick = player:get_wielded_item()
+
+			if (stick == nil
+			    or stick:get_name() ~= "magic_spells:creative_stick") then
+				return
+			end
+
+			stick:set_metadata(current_s_name or "")
+
+			player:set_wielded_item(stick)
 
 			if (current_s_name == nil) then
 				current_displayed = "Nothing"
@@ -88,7 +98,11 @@ local function show_stick(stack, player, pointed_thing)
 		end
 	end
 
-	stick_form:show(p_name, prepareds)
+	stick_form:show(p_name,
+			{
+				prepareds = prepareds,
+				selected = stack:get_metadata()
+	})
 	
 	return nil
 end
@@ -100,7 +114,7 @@ local function stick_cast(stack, player, pointed_thing)
 
 	local p_name = player:get_player_name()
 	
-	local s_name = selected_spells[p_name]
+	local s_name = stack:get_metadata()
 
 	if (s_name == nil) then
 		minetest.chat_send_player(player:get_player_name(), "No spell set")
