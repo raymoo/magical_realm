@@ -3,7 +3,7 @@
 -- Name: Ethereal Jaunt
 --
 -- Makes a player invisible, weightless, unable to cast spells, 0 collisionbox,
--- able to fly, noclip, and half speed.
+-- able to fly, noclip, and half speed. But unable to cast or interact.
 --
 -- Metadata: A table with two values
 --   uses - number of uses
@@ -184,6 +184,7 @@ local function immaterialize(player)
 
 	privs.fly = true
 	privs.noclip = true
+	privs.interact = nil
 
 	minetest.set_player_privs(p_name, privs)
 
@@ -217,6 +218,7 @@ local function materialize(effect, player)
 
 	privs.fly = nil
 	privs.noclip = nil
+	privs.interact = true
 
 	minetest.set_player_privs(p_name, privs)
 
@@ -268,7 +270,8 @@ playereffects.register_effect_type("travel_spells:ethereal",
 					  "fly",
 					  "noclip",
 					  "visual_size",
-					  "footstep"
+					  "footstep",
+					  "interact"
 				  },
 				  immaterialize,
 				  materialize
