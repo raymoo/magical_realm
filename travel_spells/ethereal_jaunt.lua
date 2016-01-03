@@ -1,6 +1,6 @@
 
--- Spell: ethreal_jaunt
--- Name: Ethreal Jaunt
+-- Spell: ethereal_jaunt
+-- Name: Ethereal Jaunt
 --
 -- Makes a player invisible, weightless, unable to cast spells, 0 collisionbox,
 -- able to fly, noclip, and half speed.
@@ -21,11 +21,11 @@
 
 local smoke_texture = "magic_particles_smoke.png^[mask:travel_spells_cyan.png"
 
-local spell_name = "ethreal_jaunt"
-local disp_name = "Ethreal Jaunt"
+local spell_name = "ethereal_jaunt"
+local disp_name = "Ethereal Jaunt"
 
 local description =
-	"Sends you to the Ethreal Plane.\n"
+	"Sends you to the Ethereal Plane.\n"
 	.. "You are invisible, weightless, and can fly, even through walls.\n"
 	.. "If you are in solid material when you rematerialize, you will die.\n\n"
 	.. "Cost: uses * duration"
@@ -72,7 +72,7 @@ local function handle_prep(uses_str, dur_str, succ_cb, err_cb)
 	})
 end
 
-local form_name = "travel_spells:ethreal_jaunt"
+local form_name = "travel_spells:ethereal_jaunt"
 
 
 local ej_form = smartfs.create(form_name, function(state)
@@ -257,8 +257,8 @@ local function materialize(effect, player)
 end
 
 
-playereffects.register_effect_type("travel_spells:ethreal",
-				  "Ethreal",
+playereffects.register_effect_type("travel_spells:ethereal",
+				  "Ethereal",
 				  nil,
 				  {
 					  "speed",
@@ -281,7 +281,7 @@ local function do_it(tab)
 	local player = tab.player
 	local dur = tab.duration
 
-	local succ = playereffects.apply_effect_type("travel_spells:ethreal",
+	local succ = playereffects.apply_effect_type("travel_spells:ethereal",
 						     dur,
 						     player)
 
