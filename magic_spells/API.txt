@@ -155,6 +155,19 @@ magic_spells.set_can_cast("player_name", c_data)
 Changes whether the player can cast spells.
 
 
+magic_spells.set_prep_slots("player_name", slot_count)
+
+Changes the player's slots to the given number. Returns nil on success, otherwise
+returns an error string.
+
+
+magic_spells.change_prep_slots("player_name", slot_delta)
+
+Adds the given number to the player's slot count. On success, returns the new
+number of slots. On error, returns nil as the first value and an error string
+as the second.
+
+
 Misc
 -----
 

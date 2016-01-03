@@ -871,12 +871,44 @@ magic_spells.set_can_cast = function (p_name, can_cast)
 end
 
 
+magic_spells.set_prep_slots = function(p_name, slot_count)
+
+	local c_data = get_caster_data(p_name)
+
+	if (slot_count ~= math.floor(slot_count)) then
+		    return "Non-integer slot count"
+	end
+
+	if (c_data == nil) then return "Not a valid caster" end
+
+	c_data.max_prep = slot_count
+
+	set_caster_data(p_name, c_data)
+end
+
+
+magic_spells.change_prep_slots = function(p_name, slot_delta)
+
+	local c_data = get_caster_data(p_name)
+
+	if (slot_delta ~= math.floor(slot_delta)) then
+		    return nil, "Non-integer slot delta"
+	end
+
+	if (c_data == nil) then return nil, "Not a valid caster" end
+
+	c_data.prep_points = c_data.prep_points + slot_delta
+
+	set_caster_data(p_name, c_data)
+end
+
+
 -- Privileges / Commands
 
 
--- Whether you can give spells out like candy.
-minetest.register_privilege("givespell",
-			    { description = "Grant spells using /givespell",
+-- Whether you can use magic admin commands
+minetest.register_privilege("spellgod",
+			    { description = "Control magical things",
 			      give_to_singleplayer = false
 })
 
@@ -915,9 +947,42 @@ end
 minetest.register_chatcommand("givespell",
 			      { params = "<player> <spell>",
 				description = "Give a player a spell",
-				privs = { givespell = true },
+				privs = { spellgod = true },
 				func = givespell_func
 })
+
+
+local function setprep_func(name, param)
+
+	local args = {}
+
+	local name_s, name_e = param:find("%w+")
+
+	if (name_s == nil) then return false, "No player specified" end
+
+	local p_name = param:sub(name_s, name_e)
+
+	local count = tonumber(param:sub(name_e + 1, -1))
+
+	if (count == nil) then return false, "Bad number" end
+
+	local err = magic_spells.set_prep_slots(name, count)
+
+	if (err ~= nil) then return false, err end
+
+	minetest.chat_send_player(name, "Set " .. p_name .. "'s slots to " .. count)
+
+	return true
+end
+
+
+minetest.register_chatcommand("set_prep_slots",
+			      { params = "<player> <new_count>",
+				description = "Set <player>'s max slots to <new_count>",
+				privs = { spellgod = true },
+				func = setprep_func
+})
+
 				
 
 local modpath = minetest.get_modpath(minetest.get_current_modname()) .. "/"
