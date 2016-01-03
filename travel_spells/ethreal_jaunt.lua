@@ -173,7 +173,6 @@ local function immaterialize(player)
 	local privs = minetest.get_player_privs(p_name)
 
 	override.speed = 0.5
-	override.gravity = 0
 
 	player:set_physics_override(override)
 
@@ -207,7 +206,6 @@ local function materialize(effect, player)
 	local privs = minetest.get_player_privs(p_name)
 
 	override.speed = 1
-	override.gravity = 1
 
 	player:set_physics_override(override)
 
@@ -264,7 +262,6 @@ playereffects.register_effect_type("travel_spells:ethreal",
 				  nil,
 				  {
 					  "speed",
-					  "gravity",
 					  "collisionbox",
 					  "can_cast",
 					  "nametag",
