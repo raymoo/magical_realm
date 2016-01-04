@@ -1,0 +1,16 @@
+Here is documentation of all the effect groups I use.
+
+speed - sets the player's speed physics override
+gravity - sets the player's gravity physics override
+
+collisionbox - changes the collisionbox in a player's object properties
+visual_size - changes the visual_size in a player's object properties
+footstep - changes whether players make footstep sounds in object properties
+
+can_cast - changes whether the player can cast spells (magic_spells.set_can_cast)
+
+nametag - changes the nametag attributes of a player
+
+fly - changes player fly permission
+noclip - changes player noclip permission
+interact - changes player interact permission
