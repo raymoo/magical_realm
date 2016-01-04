@@ -1,0 +1,6 @@
+[submodule "smartfs"]
+	path = smartfs
+	url = https://github.com/rubenwardy/smartfs
+[submodule "playereffects"]
+	path = playereffects
+	url = git://repo.or.cz/minetest_playereffects.git
