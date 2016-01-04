@@ -1,3 +1,12 @@
+***NOTE (Read Please): This repository uses git submodules. After cloning, run
+these commands:
+
+git submodule init
+git submodule update
+
+Otherwise the modpack will not work properly.
+
+
 Magical_Realm
 =============
 This is a modpack intended to include magical things. 
