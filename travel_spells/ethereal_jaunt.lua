@@ -190,7 +190,14 @@ local function immaterialize(player)
 
 	player:set_nametag_attributes({color = {a=0}})
 
-	make_puff(vector.add(player:getpos(), {x=0,y=1,z=0}))
+	local p_pos = player:getpos()
+
+	make_puff(vector.add(p_pos, {x=0,y=1,z=0}))
+
+	minetest.sound_play("travel_spells_ethereal_jaunt",
+			    {
+				    pos = p_pos
+	})
 
 	return
 end
@@ -248,12 +255,15 @@ local function materialize(effect, player)
 			player:moveto(safety, true)
 		end
 
-		make_puff(vector.add(player:getpos(), {x=0,y=1,z=0}))
+		make_puff(vector.add(p_pos, {x=0,y=1,z=0}))
 	else
-		make_puff(vector.add(player:getpos(), {x=0,y=1,z=0}))
+		make_puff(vector.add(p_pos, {x=0,y=1,z=0}))
 	end
 
-
+	minetest.sound_play("travel_spells_ethereal_jaunt",
+			    {
+				    pos = p_pos
+	})
 
 	return
 end
