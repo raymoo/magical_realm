@@ -166,38 +166,20 @@ end
 minetest.register_globalstep(caster_step)
 
 
+-- Version 0
 local function initialize_caster()
 
 	local caster_data = {}
 
-	-- A set of spell names known to the user
 	caster_data.known_spells = {}
-
-	-- A map from spell names to metadata - a spell is prepared if it has a value
-	-- in here
 	caster_data.prepared_spells = {}
-
-	-- A map from spell school names to nonnegative aptitude numbers
 	caster_data.aptitudes = {}
-
-	-- The last time the caster prepared
 	caster_data.last_prep_time = os.time()
-
-	-- The spell currently being casted. Table with elements:
-	--   spell_name: The name of the spell
-	--   remaining_time: How much more time left in casting time
-	--   def: The spell definition
-	--   result_data: The data passed to the callback in on_begin_cast
 	caster_data.current_spell = nil
 	caster_data.max_prep = init_max_prep
 	caster_data.prep_points = init_max_prep
-
-	-- The most recent settings for each spell. Used to show the caster the
-	-- last thing they chose during preparation.
 	caster_data.last_preps = {}
-
 	caster_data.can_cast = true
-
 	return caster_data
 end
 
@@ -735,13 +717,51 @@ conf_form = smartfs.create("magic_spells:conf_prep", function(state)
 end)
 
 
+local function fix_version_0(tab)
+
+	tab.version = 0
+	tab.known_spells = tab.known_spells or {}
+	tab.prepared_spells = tab.prepared_spells or {}
+	tab.aptitudes = tab.aptitudes or {}
+	tab.last_prep_time = tab.last_prep_time or 0
+	-- Current spell can be nil
+	tab.prep_points = tab.prep_points or init_max_prep
+	tab.max_prep = tab.init_max_prep
+	tab.last_preps = tab.last_preps or {}
+
+	-- nil is not a valid value
+	if (not (tab.can_cast == true or tab.can_cast == false)) then
+		tab.can_cast = true
+	end
+end
+		
+
+local function deserialize_caster(save_str)
+
+	local des = minetest.deserialize(save_str)
+
+	if (not deserialized) then
+		return initialize_caster()
+	end
+
+	local version = des.version
+
+	-- Version 0
+	if (version == nil or version == 0) then
+		fix_version_0(des)
+	end
+
+	return des
+end
+
+
 player_systems.register_player_system("casters",
 				      { initialize_player = initialize_caster
 					, serialize_player = function(meta)
 						meta.current_spell = nil
 						return minetest.serialize(meta)
 					end
-					, deserialize_player = minetest.deserialize
+					, deserialize_player = deserialize_caster
 					, on_player_join = function (p_name)
 						cancel_spell(p_name)
 						gen_HUD(p_name)
