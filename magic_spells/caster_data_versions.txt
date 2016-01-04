@@ -1,0 +1,39 @@
+This file documents the different versions of caster data, to help migration
+in upgrades.
+
+
+Version 0:
+
+This is the version that was current when I added versions.
+
+Fields
+
+version - may be 0 or nil
+
+known_spells - A set of spell names known to the caster
+
+prepared_spells - A map from spell names to metadata of prepared spells. A
+  spell is prepared iff it is in the map.
+
+aptitudes - A map from aptitudes (string names) to numbers. They define the
+  skill of the caster in different schools of magic.
+
+last_prep_time - The last time the caster prepared a spell.
+
+current_spell - The spell currently being casted. It is a table with the
+  following fields:
+
+  spell_name - the spell name
+  remaining_time - How much casting time is left
+  def - the spell's definition
+  result_data - the data passed in when the spell began casting
+
+prep_points - How many preparation slots the caster currently has open
+
+max_prep - The max number of preparation slots
+
+last_preps - Stores the last metadata prepared for a spell, so that spells
+  preparation dialogs can use them to produce default values. It is a map
+  from spell names to spell metadata
+
+can_cast - A boolean that tells whether or not a caster can cast.
