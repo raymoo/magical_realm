@@ -214,6 +214,11 @@ local function cast_missile(result)
 
 	end
 
+	minetest.sound_play("combat_spells_magic_missile",
+			    {
+				    pos = p_pos
+	})
+
 end
 
 
