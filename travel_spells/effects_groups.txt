@@ -9,7 +9,7 @@ footstep - changes whether players make footstep sounds in object properties
 
 can_cast - changes whether the player can cast spells (magic_spells.set_can_cast)
 
-nametag - changes the nametag attributes of a player
+nametag_color - changes the nametag color of a player
 
 fly - changes player fly permission
 noclip - changes player noclip permission
