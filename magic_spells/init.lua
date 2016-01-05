@@ -668,7 +668,13 @@ err_form = smartfs.create("magic_spells:err_prep", function(state)
 					       return
 				       end
 
-				       show_prep(p_name, s_name, state.param.prep_cb)
+				       local prep_cb = state.param.prep_cb
+
+				       if (prep_cb) then
+					       show_prep(p_name, s_name, state.param.prep_cb)
+				       else
+					       show_select_prep(p_name)
+				       end
 		       end)
 end)
 
