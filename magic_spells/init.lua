@@ -746,7 +746,7 @@ local function deserialize_caster(save_str)
 
 	local des = minetest.deserialize(save_str)
 
-	if (not deserialized) then
+	if (not des) then
 		return initialize_caster()
 	end
 
