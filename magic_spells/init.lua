@@ -731,8 +731,8 @@ local function fix_version_0(tab)
 	tab.aptitudes = tab.aptitudes or {}
 	tab.last_prep_time = tab.last_prep_time or 0
 	-- Current spell can be nil
-	tab.prep_points = tab.prep_points or init_max_prep
-	tab.max_prep = tab.max_prep
+	tab.max_prep = tab.max_prep or init_max_prep
+	tab.prep_points = tab.prep_points or tab.max_prep
 	tab.last_preps = tab.last_preps or {}
 
 	-- nil is not a valid value
