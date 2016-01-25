@@ -206,10 +206,10 @@ minetest.register_tool("magic_foci:focus_diamond",
 		       mk_focus_def(dmd_desc, dmd_texture, dmd_range, dmd_uses))
 
 minetest.register_craft(
-	{ output = "magic_foci:focus_gold",
+	{ output = "magic_foci:focus_diamond",
 	  recipe = {
-		  { "", "default:steel_ingot", ""},
-		  { "default:steel_ingot", "default:gold_ingot", "default:steel_ingot"},
-		  { "", "default:steel_ingot", ""},
+		  { "", "default:gold_ingot", ""},
+		  { "default:gold_ingot", "default:diamond", "default:gold_ingot"},
+		  { "", "default:gold_ingot", ""},
 	  },
 })
