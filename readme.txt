@@ -25,6 +25,16 @@ the player name will be "singleplayer". Also, give yourself a
 magic_spells:creative_spellbook. You can also find these items in the creative
 menu.
 
+If you want, you can craft magical foci instead of a wand - these wear out, and
+have different targeting ranges and use count for each tier. The crafting
+recipes all have the form of four of one item type on the outside
+(vertical/horizontal), and one item in the middle. Focus range only affects how
+far you can select a target; individual spells might have their own range limits.
+  Wooden Focus (Outside: Stick, Inside: Paper) - 5 uses, 5 range.
+  Stone Focus (Outside: Stone, Inside: Desert Stone) - 20 uses, 10 range
+  Gold Focus (Outside: Steel Ingot, Inside: Gold Ingot) - 80 uses, 15 range
+  Diamond Focus (Outside: Gold Ingot, Inside: Diamond) - 320 uses, 20 range
+
 To learn a spell, click with the spellbook, click prepare,choose a spell,
 and hit "Learn".
 To prepare a spell, click with the spellbook, and choose a spell from the "Prepare" menu.
