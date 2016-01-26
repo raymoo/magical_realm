@@ -155,9 +155,9 @@ minetest.register_tool("magic_foci:focus_wood",
 
 minetest.register_craft({ output = "magic_foci:focus_wood",
 			  recipe = {
-				  { "", "default:stick", ""},
-				  { "default:stick", "default:paper", "default:stick"},
-				  { "", "default:stick", ""},
+				  { "", "group:stick", ""},
+				  { "group:stick", "default:paper", "group:stick"},
+				  { "", "group:stick", ""},
 			  },
 })
 
