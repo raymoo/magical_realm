@@ -179,6 +179,24 @@ minetest.register_craft({ output = "magic_foci:focus_stone",
 })
 
 
+local br_desc = "Bronze Focus"
+local br_texture = "magic_foci_focus_bronze.png"
+local br_range = 15
+local br_uses = 40
+
+minetest.register_tool("magic_foci:focus_bronze",
+		       mk_focus_def(br_desc, br_texture, br_range, br_uses))
+
+minetest.register_craft(
+	{ output = "magic_foci:focus_bronze",
+	  recipe = {
+		  { "", "default:steel_ingot", ""},
+		  { "default:steel_ingot", "default:bronze_ingot", "default:steel_ingot"},
+		  { "", "default:steel_ingot", ""},
+	  },
+})
+
+
 local gold_desc = "Gold Focus"
 local gold_texture = "magic_foci_focus_gold.png"
 local gold_range = 15
