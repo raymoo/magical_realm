@@ -32,6 +32,7 @@ recipes all have the form of four of one item type on the outside
 far you can select a target; individual spells might have their own range limits.
   Wooden Focus (Outside: Stick, Inside: Paper) - 5 uses, 5 range.
   Stone Focus (Outside: Stone, Inside: Desert Stone) - 20 uses, 10 range
+  Gold Focus (Outside: Steel Ingot, Inside: Bronze Ingot) - 40 uses, 15 range
   Gold Focus (Outside: Steel Ingot, Inside: Gold Ingot) - 80 uses, 15 range
   Diamond Focus (Outside: Gold Ingot, Inside: Diamond) - 320 uses, 20 range
 
