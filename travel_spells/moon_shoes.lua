@@ -139,67 +139,13 @@ local function begin_cast(meta, player, pointed_thing, callback)
 end
 
 
-local function make_puff(pos)
-
-	local pos_offset = {x=0.5, y=0.5, z=0.5}
-
-	minetest.add_particlespawner({ amount = 5,
-		  time = 0.2,
-		  minpos = vector.subtract(pos, pos_offset),
-		  maxpos = vector.add(pos, pos_offset),
-		  minvel = {x=-0.5, y=-0.5, z=-0.5},
-		  maxvel = {x=0.5, y=0.5, z=0.5},
-		  minexptime = 2,
-		  maxexptime = 4,
-		  minsize = 10,
-		  maxsize = 10,
-		  texture = smoke_texture
-	})
-end
-
-
-
-local function bouncy(player)
-
-	if (not player:is_player()) then return end
-
-	local p_name = player:get_player_name()
-	
-	local override = player:get_physics_override()
-
-	override.gravity = gravity_ratio
-
-	player:set_physics_override(override)
-
-	return
-end
-
-
-local function unbouncy(effect, player)
-	
-	if (player == nil or not player:is_player()) then return end
-
-	local p_name = player:get_player_name()
-	
-	local override = player:get_physics_override()
-
-	override.gravity = 1
-
-	player:set_physics_override(override)
-
-	return
-end
-
-
-playereffects.register_effect_type("travel_spells:moon_shoes",
-				  "Moon Shoes",
-				  nil,
-				  {
-					  "gravity"
-				  },
-				  bouncy,
-				  unbouncy
-)
+monoidal_effects.register_type("travel_spells:moon_shoes",
+			       { disp_name = "Moon Shoes",
+				 tags = {magic = true},
+				 monoids = {gravity = true},
+				 cancel_on_death = true,
+				 values = {gravity = 0.2},
+})
 
 
 local function do_it(tab)
@@ -208,9 +154,9 @@ local function do_it(tab)
 	local player = tab.player
 	local dur = tab.duration
 
-	local succ = playereffects.apply_effect_type("travel_spells:moon_shoes",
-						     dur * 60,
-						     player)
+	local succ = monoidal_effects.apply_effect("travel_spells:moon_shoes",
+						   dur * 60,
+						   player:get_player_name())
 
 	if (not succ) then
 		minetest.chat_send_player(player:get_player_name(), "Could not activate.")

@@ -164,17 +164,9 @@ end
 
 local function immaterialize(player)
 
-	if (not player:is_player()) then return end
 
 	local p_name = player:get_player_name()
-	magic_spells.set_can_cast(p_name, false)
-	
-	local override = player:get_physics_override()
 	local privs = minetest.get_player_privs(p_name)
-
-	override.speed = 0.5
-
-	player:set_physics_override(override)
 
 	player:set_properties({
 			collisionbox = {0},
@@ -182,40 +174,20 @@ local function immaterialize(player)
 			makes_footstep_sound = false
 	})
 
-	privs.fly = true
-	privs.noclip = true
 	privs.interact = nil
 
 	minetest.set_player_privs(p_name, privs)
 
 	player:set_nametag_attributes({color = {a=0}})
 
-	local p_pos = player:getpos()
-
-	make_puff(vector.add(p_pos, {x=0,y=1,z=0}))
-
-	minetest.sound_play("travel_spells_ethereal_jaunt",
-			    {
-				    pos = p_pos
-	})
-
 	return
 end
 
 
-local function materialize(effect, player)
+local function materialize(player)
 	
-	if (player == nil or not player:is_player()) then return end
-
 	local p_name = player:get_player_name()
-	magic_spells.set_can_cast(p_name, true)
-	
-	local override = player:get_physics_override()
 	local privs = minetest.get_player_privs(p_name)
-
-	override.speed = 1
-
-	player:set_physics_override(override)
 
 	player:set_properties({
 			collisionbox = {-0.3, -1, -0.3, 0.3, 1, 0.3},
@@ -223,69 +195,93 @@ local function materialize(effect, player)
 			makes_footstep_sound = true
 	})
 
-	privs.fly = nil
-	privs.noclip = nil
 	privs.interact = true
 
 	minetest.set_player_privs(p_name, privs)
 
 	player:set_nametag_attributes({color = {a=255, r=255, g=255, b=255}})
 
-	local p_pos = player:getpos()
-
-	local node = minetest.get_node(p_pos)
-
-	local node_def = minetest.registered_nodes[node.name]
-
-	if (node_def and node_def.walkable == true) then
-		local safety = minetest.find_node_near(p_pos, 2, "air")
-
-		if (safety == nil) then
-
-			minetest.after(0, function()
-				local hp = player:get_hp()
-
-				if (hp ~= nil and hp ~= 0) then
-					player:set_hp(0)
-				end
-				
-				minetest.chat_send_player(p_name, "You are crushed.")
-			end)
-		else
-			player:moveto(safety, true)
-		end
-
-		make_puff(vector.add(p_pos, {x=0,y=1,z=0}))
-	else
-		make_puff(vector.add(p_pos, {x=0,y=1,z=0}))
-	end
-
-	minetest.sound_play("travel_spells_ethereal_jaunt",
-			    {
-				    pos = p_pos
-	})
-
 	return
 end
 
 
-playereffects.register_effect_type("travel_spells:ethereal",
-				  "Ethereal",
-				  nil,
-				  {
-					  "speed",
-					  "collisionbox",
-					  "can_cast",
-					  "nametag_color",
-					  "fly",
-					  "noclip",
-					  "visual_size",
-					  "footstep",
-					  "interact"
-				  },
-				  immaterialize,
-				  materialize
-)
+local function eth_change(val1, val2, player)
+
+	local p_pos = player:getpos()
+	
+	if val1 ~= val2 then
+		make_puff(vector.add(p_pos, {x=0,y=1,z=0}))
+		minetest.sound_play("travel_spells_ethereal_jaunt",
+				    {
+					    pos = p_pos
+		})
+	end
+
+	-- Change from ethereal to non-ethereal
+	if val1 and not val2 then
+		local node = minetest.get_node(p_pos)
+
+		local node_def = minetest.registered_nodes[node.name]
+
+		if (node_def and node_def.walkable == true) then
+			local safety = minetest.find_node_near(p_pos, 2, "air")
+
+			local p_name = player:get_player_name()
+
+			if (safety == nil) then
+				minetest.after(0, function()
+					local hp = player:get_hp()
+
+					if (hp ~= nil and hp ~= 0) then
+						player:set_hp(0)
+					end
+					
+					minetest.chat_send_player(p_name, "You are crushed.")
+				end)
+			else
+				player:moveto(safety, true)
+			end
+		end
+	end
+end
+
+
+monoidal_effects.register_monoid("travel_spells:ethereal",
+	{ combine = function(v1, v2) return v1 or v2 end,
+	  fold = function(elems)
+		  for k, v in pairs(elems) do
+			  if v then return true end
+		  end
+
+		  return false
+	  end,
+	  identity = false,
+	  apply = function(v, player)
+		  if v then
+			  immaterialize(player)
+		  else
+			  materialize(player)
+		  end
+	  end,
+	  on_change = eth_change,
+})
+
+
+monoidal_effects.register_type("travel_spells:ethereal",
+			       { disp_name = "Ethereal (k to fly, h to noclip)",
+				 tags = {magic = true},
+				 monoids = { speed = true,
+					     fly = true,
+					     noclip = true,
+					     ["travel_spells:ethereal"] = true,
+				 },
+				 cancel_on_death = true,
+				 values = { speed = 0.5,
+					    fly = true,
+					    noclip = true,
+					    ["travel_spells:ethereal"] = true,
+				 }
+})
 
 
 local function do_it(tab)
@@ -294,9 +290,9 @@ local function do_it(tab)
 	local player = tab.player
 	local dur = tab.duration
 
-	local succ = playereffects.apply_effect_type("travel_spells:ethereal",
-						     dur,
-						     player)
+	local succ = monoidal_effects.apply_effect("travel_spells:ethereal",
+						   dur,
+						   player:get_player_name())
 
 	if (not succ) then
 		minetest.chat_send_player(player:get_player_name(), "Could not jaunt")
