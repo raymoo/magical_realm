@@ -131,7 +131,7 @@ local function mk_focus_cast(wear)
 end
 
 
-local function mk_focus_def(desc, texture, range, uses)
+local function mk_focus_def(desc, texture, range, uses, tier)
 	return { description = desc,
 		 inventory_image = texture,
 		 wield_image = texture,
@@ -140,7 +140,7 @@ local function mk_focus_def(desc, texture, range, uses)
 		 liquids_pointable = false,
 		 on_place = show_focus,
 		 on_use = mk_focus_cast(math.ceil(max_wear / uses)),
-		 groups = { ["magic_foci:focus"] = 1 }
+		 groups = { ["magic_foci:focus"] = tier }
 	}
 end
 
@@ -151,7 +151,7 @@ local wood_range = 5
 local wood_uses = 5
 
 minetest.register_tool("magic_foci:focus_wood",
-		       mk_focus_def(wood_desc, wood_texture, wood_range, wood_uses))
+		       mk_focus_def(wood_desc, wood_texture, wood_range, wood_uses, 0))
 
 minetest.register_craft({ output = "magic_foci:focus_wood",
 			  recipe = {
@@ -168,7 +168,7 @@ local stone_range = 10
 local stone_uses = 20
 
 minetest.register_tool("magic_foci:focus_stone",
-		       mk_focus_def(stone_desc, stone_texture, stone_range, stone_uses))
+		       mk_focus_def(stone_desc, stone_texture, stone_range, stone_uses, 1))
 
 minetest.register_craft({ output = "magic_foci:focus_stone",
 			  recipe = {
@@ -185,7 +185,7 @@ local br_range = 15
 local br_uses = 40
 
 minetest.register_tool("magic_foci:focus_bronze",
-		       mk_focus_def(br_desc, br_texture, br_range, br_uses))
+		       mk_focus_def(br_desc, br_texture, br_range, br_uses, 2))
 
 minetest.register_craft(
 	{ output = "magic_foci:focus_bronze",
@@ -203,7 +203,7 @@ local gold_range = 15
 local gold_uses = 80
 
 minetest.register_tool("magic_foci:focus_gold",
-		       mk_focus_def(gold_desc, gold_texture, gold_range, gold_uses))
+		       mk_focus_def(gold_desc, gold_texture, gold_range, gold_uses, 3))
 
 minetest.register_craft(
 	{ output = "magic_foci:focus_gold",
@@ -221,7 +221,7 @@ local dmd_range = 20
 local dmd_uses = 320
 
 minetest.register_tool("magic_foci:focus_diamond",
-		       mk_focus_def(dmd_desc, dmd_texture, dmd_range, dmd_uses))
+		       mk_focus_def(dmd_desc, dmd_texture, dmd_range, dmd_uses, 4))
 
 minetest.register_craft(
 	{ output = "magic_foci:focus_diamond",
