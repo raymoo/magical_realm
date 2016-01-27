@@ -1,3 +1,6 @@
 [submodule "smartfs"]
 	path = smartfs
 	url = https://github.com/rubenwardy/smartfs
+[submodule "monoidal_effects"]
+	path = monoidal_effects
+	url = https://github.com/raymoo/monoidal_effects
