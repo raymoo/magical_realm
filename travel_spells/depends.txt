@@ -1,3 +1,4 @@
 magic_spells
 magic_particles
 playereffects
+monoidal_effects
