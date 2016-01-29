@@ -141,9 +141,9 @@ end
 monoidal_effects.register_type("travel_spells:haste",
 			       { disp_name = "Haste",
 				 tags = {magic = true},
-				 monoids = {speed = true},
+				 monoids = {["magic_monoids:speed_bonus"] = true},
 				 cancel_on_death = true,
-				 values = {speed = 3},
+				 values = {["magic_monoids:speed_bonus"] = 3},
 })
 
 

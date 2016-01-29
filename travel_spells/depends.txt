@@ -1,3 +1,4 @@
 magic_spells
 magic_particles
 monoidal_effects
+magic_monoids
