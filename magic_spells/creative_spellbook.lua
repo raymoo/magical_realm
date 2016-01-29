@@ -103,7 +103,7 @@ local function handle_fields(player, formname, fields)
 
 	if (fields["unprepare"]) then
 
-		local err = magic_spells.reset_preparation(p_name, true)
+		local err = magic_spells.reset_preparation(p_name, false)
 		if (err ~= nil) then
 			minetest.chat_send_player(p_name, err)
 		else
@@ -135,7 +135,7 @@ main_form = smartfs.create("magic_spells:creative_spellbook",
 	end)
 
 	unprep_butt:click(function(self, state)
-			local err = magic_spells.reset_preparation(p_name, true)
+			local err = magic_spells.reset_preparation(p_name, false)
 
 			if (err ~= nil) then
 				minetest.chat_send_player(p_name, err)
