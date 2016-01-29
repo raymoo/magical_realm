@@ -2,3 +2,4 @@ magic_spells
 fire
 tnt
 smartfs
+3d_armor?
