@@ -3,3 +3,4 @@ fire
 tnt
 smartfs
 3d_armor?
+monoidal_effects
