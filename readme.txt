@@ -61,6 +61,8 @@ magic_missile (Magic Missile) - Shoots homing force bolts.
 
 reflect_lesser (Lesser Reflect) - Reflects weak magic projectiles.
 
+rock_hide (Rock Hide) - Gives damage soak, at the expense of mobility.
+
 
 travel_spells
 -------------
@@ -74,3 +76,7 @@ blink (Blink) - Teleport to a random nearby location
 ethereal_jaunt (Ethereal Jaunt) - Makes the player invisible and immaterial, so
 they can fly and phase through walls. Kills the player if they are inside solid
 material when the rematerialize.
+
+moon_shoes (Moon Shoes) - Low gravity.
+
+haste (Haste) - High speed.
