@@ -192,11 +192,11 @@ end, true)
 
 
 monoidal_effects.register_monoid("combat_spells:soak",
-	{ combine = function(x, y) return x + y end,
+	{ combine = math.max,
 	  fold = function(elems)
 		  local tot = 0
 		  for k, v in pairs(elems) do
-			  tot = tot + v
+			  tot = math.max(v, tot)
 		  end
 
 		  return tot
