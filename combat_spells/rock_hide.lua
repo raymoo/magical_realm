@@ -212,9 +212,9 @@ monoidal_effects.register_type("combat_spells:rock_hide",
 			       { disp_name = "Rock Hide",
 				 tags = {magic = true},
 				 monoids = {["combat_spells:soak"] = true,
-					 speed = true},
+					 ["magic_monoids:speed_malus"] = true},
 				 cancel_on_death = true,
 				 values = {["combat_spells:soak"] = 4,
-					 speed = 0.5 },
+					 ["magic_monoids:speed_malus"] = 0.5 },
 })
 
