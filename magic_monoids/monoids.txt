@@ -1,0 +1,5 @@
+magic_monoids:speed_bonus - Speed bonuses. Chooses the max and applies it through
+the standard speed monoid. Valid values are 1 or above.
+
+magic_monoids:speed_malus - Same, but chooses the minimum. Valid values are
+between 0 and 1.
