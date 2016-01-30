@@ -136,10 +136,10 @@ local function begin_cast(meta, player, pointed_thing, callback)
 
 	local target = pointed_thing and pointed_thing.ref
 
-	if (target == nil) then
+	if target == nil then
 		if (player:is_player()) then
 			minetest.chat_send_player(player:get_player_name(),
-						  "You must target a player")
+						  "You must target an entity.")
 		end
 		
 		return meta
@@ -264,15 +264,19 @@ minetest.register_entity("combat_spells:magic_missile",
 
 				   if (vector.distance(self_pos, other_pos) < 1) then
 
+					   local armors = self.target:get_armor_groups()
 
+					   print(dump(armors))
 
-					   self.target:punch(self.object,
-							     1,
-							     { full_punch_interval = 1,
-							       max_drop_level = 0,
-							       damage_groups = { fleshy = 2 }
-							     },
-							     dir)
+					   if not armors.immortal then
+						   self.target:punch(self.object,
+							1,
+							{ full_punch_interval = 1,
+							  max_drop_level = 0,
+							  damage_groups = { fleshy = 2 }
+							},
+							dir)
+					   end
 							     
 					   self.object:remove()
 					   return
