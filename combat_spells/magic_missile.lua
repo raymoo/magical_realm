@@ -225,7 +225,7 @@ end
 -- Target needs to be set when spawned.
 minetest.register_entity("combat_spells:magic_missile",
 			 { target = nil,
-			   lifetime = 10,
+			   lifetime = 4,
 
 			   magical_power = 2,
 			   magical_reflect = function(self, new_owner)
@@ -290,13 +290,13 @@ minetest.register_entity("combat_spells:magic_missile",
 					   return
 				   end
 
-				   self.object:setacceleration(vector.multiply(dir, 10))
+				   self.object:setacceleration(vector.multiply(dir, 30))
 
 				   local cur_vel = self.object:getvelocity()
 
-				   if (vector.length(cur_vel) > 3) then
+				   if (vector.length(cur_vel) > 6) then
 
-					   local new_vel = vector.multiply(vector.normalize(cur_vel), 3)
+					   local new_vel = vector.multiply(vector.normalize(cur_vel), 9)
 
 					   self.object:setvelocity(new_vel)
 				   end
