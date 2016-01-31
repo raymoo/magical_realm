@@ -76,8 +76,6 @@ minetest.register_on_generated(function(minp, maxp, blockseed)
 
 		if not locations then return end
 
-		print(minetest.pos_to_string(minp))
-
 		for i, location in ipairs(locations) do
 			if math.random(3) == 1 then
 				minetest.place_node(location, { name = "loot:loot_node" })
