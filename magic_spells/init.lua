@@ -897,6 +897,13 @@ magic_spells.set_can_cast = function (p_name, can_cast)
 end
 
 
+magic_spells.get_max_prep = function(p_name)
+	local c_data = get_caster_data(p_name)
+
+	return c_data and c_data.max_prep
+end
+
+
 magic_spells.set_prep_slots = function(p_name, slot_count)
 
 	local c_data = get_caster_data(p_name)
@@ -923,7 +930,7 @@ magic_spells.change_prep_slots = function(p_name, slot_delta)
 
 	if (c_data == nil) then return nil, "Not a valid caster" end
 
-	c_data.prep_points = c_data.prep_points + slot_delta
+	c_data.max_prep = c_data.max_prep + slot_delta
 
 	set_caster_data(p_name, c_data)
 end
@@ -937,6 +944,9 @@ magic_spells.known_spells = function(p_name)
 
 	return c_data.known_spells
 end
+
+
+magic_spells.base_prep = init_max_prep
 
 
 -- Privileges / Commands
