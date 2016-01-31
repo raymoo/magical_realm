@@ -929,6 +929,16 @@ magic_spells.change_prep_slots = function(p_name, slot_delta)
 end
 
 
+magic_spells.known_spells = function(p_name)
+
+	local c_data = get_caster_data(p_name)
+
+	if c_data == nil then return end
+
+	return c_data.known_spells
+end
+
+
 -- Privileges / Commands
 
 

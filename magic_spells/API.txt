@@ -168,6 +168,11 @@ number of slots. On error, returns nil as the first value and an error string
 as the second.
 
 
+magic_spells.known_spells("player_name")
+
+Returns the set of spells known by the player.
+
+
 Misc
 -----
 
