@@ -76,11 +76,13 @@ local ej_form = smartfs.create(form_name, function(state)
 	state:size(5,5.5)
 
 	local def_uses = (state.param.last_meta and state.param.last_meta.uses) or 1
+	local def_dur = (state.param.last_meta and state.param.last_meta.duration) or 1
 
 	local uses_field = state:field(1,1, 3,1, "uses", "Uses")
 	uses_field:setText("" .. def_uses)
 
 	local dur_field = state:field(1,2.5, 3,1, "dur", "Duration (minutes)")
+	dur_field:setText("" .. def_dur)
 
 	local butt = state:button(1.5,4, 2,1, "prepare", "Prepare")
 
