@@ -38,7 +38,7 @@ local mts = loot.modpath .. "loot_vault.mts"
 
 minetest.register_on_generated(function(minp, maxp, seed)
 	if maxp.y < -10 then return end
-	local do_gen = seed % 13 == 0
+	local do_gen = seed % 131 == 0
 
 	if not do_gen then return end
 
