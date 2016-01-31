@@ -97,6 +97,8 @@ loot.register_loot(
 		    },
 })
 
+if not minetest.get_modpath("farming") then return end
+
 loot.register_loot(
 	{ weights = { generic = 200 },
 	  payload = { stack = ItemStack("farming:bread"),
