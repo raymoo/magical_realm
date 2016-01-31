@@ -72,3 +72,10 @@ minetest.register_on_dieplayer(function(player)
 		minetest.item_drop(v, player, drop_pos)
 	end
 end)
+
+
+minetest.register_craft(
+	{ type = "shapeless",
+	  output = "magic_battle:prep_slot 5",
+	  recipe = { "spellbooks:spellbook" },
+})
