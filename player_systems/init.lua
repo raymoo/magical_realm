@@ -46,7 +46,7 @@ local world_path = minetest.get_worldpath()
 local mod_data_path = world_path .. "/psystem-saves"
 
 
-os.execute("mkdir " .. mod_data_path)
+minetest.mkdir(mod_data_path)
 
 
 -- The list of active systems
