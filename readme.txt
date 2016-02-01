@@ -69,7 +69,7 @@ travel_spells
 
 Spells that help transport the player
 
-Current Spells
+Current Spells:
 
 blink (Blink) - Teleport to a random nearby location
 
@@ -80,3 +80,17 @@ material when the rematerialize.
 moon_shoes (Moon Shoes) - Low gravity.
 
 haste (Haste) - High speed.
+
+
+build_spells
+------------
+
+Spells that affect the world
+
+Curretn Spells:
+
+excavate (Excavate) - Summons a magical floating pickaxe to help you dig. It
+will float in the direction you look, and you can adjust its distance from you
+using the E key and shift + E. Otherwise, it will try to stay a set distance
+away. It only digs below altitude -4, and will not dig nodes if it is right
+next to you.
