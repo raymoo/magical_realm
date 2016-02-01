@@ -146,7 +146,7 @@ local function do_dig(player, pos)
 	local minp = vector.subtract(pos, 1)
 	
 	local affected =
-		minetest.find_nodes_in_area(minp, maxp, {"group:soil", "group:stone"})
+		minetest.find_nodes_in_area(minp, maxp, {"group:crumbly", "group:cracky"})
 
 	for i, n_pos in ipairs(affected) do
 		minetest.node_dig(n_pos, minetest.get_node(n_pos), player)
