@@ -62,7 +62,7 @@ minetest.register_on_dieplayer(function(player)
 
 	table.insert(drops, slots)
 
-	if math.random(3) == 1 then
+	if math.random(3) == 1 and now - last_death >= cooldown then
 		for i, v in ipairs(loot.generate_loot("magical", 1)) do
 			table.insert(drops, v)
 		end
