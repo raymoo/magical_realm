@@ -294,7 +294,7 @@ minetest.register_entity("combat_spells:magic_missile",
 
 				   local cur_vel = self.object:getvelocity()
 
-				   if (vector.length(cur_vel) > 6) then
+				   if (vector.length(cur_vel) > 9) then
 
 					   local new_vel = vector.multiply(vector.normalize(cur_vel), 9)
 
